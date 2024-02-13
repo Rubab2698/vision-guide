@@ -4,18 +4,11 @@ const Schema = mongoose.Schema;
 const { userTypes, platform } = require('../general/enums');
 
 const userSchema = new Schema({
-  fullName: String,
   email: {
     type: String,
-    unique: true,
-    required: true,
     lowercase: true
   },
   password: {
-    type: String,
-  },
-  profilePicture: String,
-  userName: {
     type: String,
   },
   role: {
@@ -27,7 +20,10 @@ const userSchema = new Schema({
     type: String,
     enum: {...Object.values(platform)},
   },
-googleId: String
+googleId: String,
+phoneNumber: {
+  type: Number,
+},
 });
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
