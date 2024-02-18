@@ -60,7 +60,7 @@ router.get(
 router.get(
   '/mentee/:menteeId',
   verifyAccessToken,
-  authorizationMiddleware( 'Admin', 'Mentee'),
+  authorizationMiddleware( ['Admin', 'Mentee']),
   validateSchema(getAllRequestsByMenteeIdSchema),
   controller.getAllRequestsByMentee
 );
@@ -101,4 +101,10 @@ router.get(
     controller.deleteSingleReqStatus
   );
   
+  router.get(
+    '/status/mentee/:menteeId',
+    verifyAccessToken,
+    authorizationMiddleware('Admin', 'Mentee'),
+    controller.getAllReqStatusesByMentee
+  );
   module.exports = router;

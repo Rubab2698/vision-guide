@@ -74,9 +74,8 @@ const {
   const getAllRequestsByMentee = async (req, res, next) => {
     try {
       const menteeId = req.params.menteeId;
-      const status = req.query.status;
-      const options = req.query.options;
-      const requests = await getAllRequestsByMenteeId({ menteeId, status }, options);
+      const options = pick(req.query, ["sortBy", "page", "limit"]);
+      const requests = await getAllRequestsByMenteeId({ menteeId }, options);
       res.status(200).json(requests);
     } catch (error) {
       next(error);
@@ -138,6 +137,18 @@ const {
       next(error);
     }
   };
+
+  const getAllReqStatusesByMentee = async (req, res, next) => {
+    try {
+      const menteeId = req.params.menteeId;
+      const options = pick(req.query, ["sortBy", "page", "limit"]);
+      const reqStatuses = await getAllReqStatusesByMenteeId({ menteeId }, options);
+      res.status(200).json(reqStatuses);
+    } catch (error) {
+      next(error);
+    }
+    
+  }
   
   module.exports = {
     postCreateRequest,
@@ -150,6 +161,7 @@ const {
     getAllReqStatusesController,
     getSingleReqStatusById,
     getReqStatusByRequestId,
-    deleteSingleReqStatus
+    deleteSingleReqStatus,
+    getAllReqStatusesByMentee
   };
   

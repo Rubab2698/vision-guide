@@ -1,7 +1,8 @@
 const { Request, ReqStatuses } = require('./request.model'); // Importing Mongoose models
-
+const mongoose = require('mongoose');
 const meet = require('../general/meet');
-
+const moment = require('moment');
+const { ObjectId } = require('mongodb');
 
 //request
 const  createRequest = async  (requestData)=> {
@@ -39,7 +40,6 @@ const deleteRequest = async  (requestId) =>{
         throw new Error(`Error deleting request: ${error.message}`);
     }
 }
-const mongoose = require('mongoose');
 
 const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
     try {
@@ -103,42 +103,31 @@ const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
     }
 }
 
-
 const getAllRequestsByMenteeId = async (filters, options) => {
     try {
-        const { menteeId, status } = filters;
+        let { menteeId } = filters;
         const { sortBy, page, limit } = options;
 
+        
+        if (menteeId) {
+            menteeId = mongoose.Types.ObjectId.isValid(menteeId) ? mongoose.Types.ObjectId(menteeId) : null;
+        }
         // Parse page and limit as integers with default values
         const parsedPage = parseInt(page) || 1;
         const parsedLimit = parseInt(limit) || 10;
 
         const mainPipeline = [];
 
-        // Match stage for mentor ID and status
+        // Match stage for menteeId
         const matchStage = {};
         if (menteeId) {
             matchStage.menteeId = menteeId;
-        }
-        if (status) {
-            matchStage.status = status;
-        }
-        if (Object.keys(matchStage).length > 0) {
             mainPipeline.push({ $match: matchStage });
         }
 
-        // Add additional lookup stages if needed
-
-        const projectStage = {
-            $project: {
-                'bankDetails': 0, // Exclude password field from the result
-            },
-        };
-        mainPipeline.push(projectStage);
-
         if (options && options.sortBy) {
             const parsedSortBy = JSON.parse(sortBy);
-            mainPipeline.push({ $sort: { userName: parsedSortBy } });
+            mainPipeline.push({ $sort: parsedSortBy });
         } else {
             mainPipeline.push({ $sort: { createdAt: -1 } });
         }
@@ -155,7 +144,7 @@ const getAllRequestsByMenteeId = async (filters, options) => {
         }});
 
         // Execute the main pipeline
-        const results = await MentorServiceSchema.aggregate(mainPipeline);
+        const results = await Request.aggregate(mainPipeline);
 
         // Pipeline for counting total documents
         const countPipeline = [
@@ -164,7 +153,7 @@ const getAllRequestsByMenteeId = async (filters, options) => {
         ];
 
         // Execute the count pipeline
-        const countResults = await MentorServiceSchema.aggregate(countPipeline);
+        const countResults = await Request.aggregate(countPipeline);
 
         const totalDocuments = countResults.length > 0 ? countResults[0].totalDocuments : 0;
         const totalPages = Math.ceil(totalDocuments / parsedLimit);
@@ -188,7 +177,7 @@ const getAllRequestsByMenteeId = async (filters, options) => {
 }
 
 //request status
-const moment = require('moment');
+
 
 const createReqStatus = async (reqStatusData) => {
   try {
@@ -238,6 +227,80 @@ const getReqStatusById =async (reqStatusId)=> {
     }
 }
 
+
+const getAllReqStatusesByMenteeId = async (menteeId, options) => {
+    try {
+        const { status } = options;
+        const { sortBy, page, limit } = options;
+
+        // Parse page and limit as integers with default values
+        const parsedPage = parseInt(page) || 1;
+        const parsedLimit = parseInt(limit) || 10;
+
+        const mainPipeline = [];
+
+        // Match stage for menteeId and status
+        const matchStage = {};
+        if (menteeId) {
+            matchStage.menteeId = mongoose.Types.ObjectId(menteeId);
+            mainPipeline.push({ $match: matchStage });
+        }
+
+        if (status) {
+            matchStage.status = status;
+            mainPipeline.push({ $match: matchStage });
+        }
+
+        if (options && options.sortBy) {
+            const parsedSortBy = JSON.parse(sortBy);
+            mainPipeline.push({ $sort: parsedSortBy });
+        } else {
+            mainPipeline.push({ $sort: { createdAt: -1 } });
+        }
+
+        // Pagination stages with parsedPage and parsedLimit
+        mainPipeline.push({ $skip: (parsedPage - 1) * parsedLimit });
+        mainPipeline.push({ $limit: parsedLimit });
+
+        // Populate mentor profiles
+        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'menteeId', foreignField: '_id', as: 'mentorProfile' } });
+        mainPipeline.push({ $unwind: {
+            'path': '$mentorProfile',
+            'preserveNullAndEmptyArrays': true
+        }});
+
+        // Execute the main pipeline
+        const results = await ReqStatuses.aggregate(mainPipeline);
+
+        // Pipeline for counting total documents
+        const countPipeline = [
+            { $match: matchStage }, // Apply match stage for total count
+            { $count: 'totalDocuments' },
+        ];
+
+        // Execute the count pipeline
+        const countResults = await ReqStatuses.aggregate(countPipeline);
+
+        const totalDocuments = countResults.length > 0 ? countResults[0].totalDocuments : 0;
+        const totalPages = Math.ceil(totalDocuments / parsedLimit);
+
+        // Return the response
+        const response = {
+            results,
+            pagination: {
+                totalPages,
+                currentPage: parsedPage,
+                totalDocuments,
+                docsOnPage: results.length,
+            },
+        };
+
+        return response;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 const getReqStatusByReqId =async (reqId)=> {
     try {
         const reqStatus = await ReqStatuses.findById({requestId: reqId});
@@ -265,5 +328,7 @@ module.exports = {
     getReqStatusById,
     deleteReqStatus,
     getAllRequestsByMentorId,
-    getAllRequestsByMenteeId
+    getAllRequestsByMenteeId,
+    getAllReqStatusesByMenteeId,
+    getReqStatusByReqId
 };

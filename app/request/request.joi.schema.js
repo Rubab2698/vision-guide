@@ -41,9 +41,10 @@ const getAllRequestsByMentorIdSchema = Joi.object({
 
 // Joi schema for getting all requests by mentee ID
 const getAllRequestsByMenteeIdSchema = Joi.object({
+  params: Joi.object({
+    menteeId: Joi.string().required()   
+  }),
   query: Joi.object({
-    menteeId: Joi.string().required(),
-    status: Joi.string().valid('pending', 'accepted', 'rejected'),
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required()
@@ -62,7 +63,9 @@ const createReqStatusSchema = Joi.object({
     day: Joi.string().required(),
     menteeName: Joi.string().required(),
     mentorName: Joi.string().required(),
-    message: Joi.string()
+    message: Joi.string(),
+    mentorId: Joi.string().required(),
+    menteeId: Joi.string().required(),
   })
 });
 

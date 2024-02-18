@@ -60,7 +60,17 @@ const reqStatusesSchema = new Schema({
         ref: 'Request', // Reference to the Request model
         required: true
     },
-    message: String
+    message: String,
+    mentorId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
+        required: true
+    },
+    menteeId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
+        required: true
+    },
 });
 
 // Create models

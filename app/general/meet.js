@@ -20,103 +20,59 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const oAuthClient = new OAuth2(CLIENT_ID, CLIENT_SECRET);
 oAuthClient.setCredentials({ refresh_token: AUTH_REFRESH_TOKEN });
 
-function exponentialBackoffDelay(retryNumber) {
-  const delay = Math.pow(2, retryNumber) * 1000; // Exponential backoff formula
-  return delay;
-}
-
 // Configure axios to retry requests
 axiosRetry(axios, {
   retries: 3, // Number of retry attempts
-  retryDelay: exponentialBackoffDelay, // Exponential backoff retry delay
+  retryDelay: (retryCount) => Math.pow(2, retryCount) * 1000, // Exponential backoff retry delay
 });
 
 // Create Calendar API instance
 const calendar = google.calendar({ version: 'v3', auth: oAuthClient });
 
-async function sendMeetingLink(eventId, attendees) {
+async function createMeetingEvent(eventData) {
   try {
-    const createdEvent = await calendar.events.get({
+    const event = {
+      summary: eventData.summary,
+      description: 'Meeting created with Google Calendar API and Google Meet',
+      start: {
+        dateTime: eventData.startTime,
+        timeZone: timeZone,
+      },
+      end: {
+        dateTime: eventData.endTime,
+        timeZone: timeZone,
+      },
+      conferenceData: {
+        createRequest: { requestId: uniqueId },
+      },
+      attendees: eventData.attendees,
+      reminders: {
+        useDefault: false,
+        overrides: [{ method: 'email', minutes: 30 }],
+      },
+    };
+
+    const createdEvent = await calendar.events.insert({
       calendarId: 'primary',
-      eventId: eventId,
+      resource: event,
+      conferenceDataVersion: 1,
+      sendNotifications: true, // Send notifications to attendees
     });
+
+    console.log('Event created:', createdEvent.data);
 
     const meetingLink = createdEvent.data.hangoutLink;
-
     if (!meetingLink) {
       console.error('Meeting link not available');
-      return;
+      throw new Error('Meeting link not available');
     }
 
-    const promises = attendees.map(async (attendee) => {
-      await calendar.events.patch({
-        calendarId: 'primary',
-        eventId: eventId,
-        sendNotifications: true,
-        resource: {
-          attendees: [{ email: attendee.email, displayName: attendee.displayName }],
-          sendUpdates: 'all',
-          notifications: [{
-            type: 'email',
-            method: 'email',
-            attendees: [{ email: attendee.email, displayName: attendee.displayName }],
-            sendUpdates: 'all',
-          }],
-        },
-      });
-      console.log(`Meeting link sent to ${attendee.email}`);
-    });
-
-    await Promise.all(promises);
+    // Return both event data and meeting link
+    return { event: createdEvent.data, meetingLink: meetingLink };
   } catch (error) {
-    console.error('Error sending meeting link:', error);
+    console.error('Error creating event:', error);
     throw error;
   }
 }
 
-async function createMeetingEvent(eventData) {
-    try {
-      const event = {
-        summary: eventData.summary,
-        description: 'Meeting created with Google Calendar API and Google Meet',
-        start: {
-          dateTime: eventData.startTime,
-          timeZone: timeZone,
-        },
-        end: {
-          dateTime: eventData.endTime,
-          timeZone: timeZone,
-        },
-        conferenceData: {
-          createRequest: { requestId: uniqueId },
-        },
-        attendees: eventData.attendees,
-      };
-  
-      const createdEvent = await calendar.events.insert({
-        calendarId: 'primary',
-        resource: event,
-        conferenceDataVersion: 1,
-        sendNotifications: true, // Send notifications to attendees
-      });
-  
-      console.log('Event created:', createdEvent.data);
-  
-      const meetingLink = createdEvent.data.hangoutLink;
-      if (!meetingLink) {
-        console.error('Meeting link not available');
-        throw new Error('Meeting link not available');
-      }
-  
-      await sendMeetingLink(createdEvent.data.id, eventData.attendees);
-  
-      // Return both event data and meeting link
-      return { event: createdEvent.data, meetingLink: meetingLink };
-    } catch (error) {
-      console.error('Error creating event:', error);
-      throw error;
-    }
-  }
-  
-  module.exports = createMeetingEvent;
-  
+module.exports = createMeetingEvent;
