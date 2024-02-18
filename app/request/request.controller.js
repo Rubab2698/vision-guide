@@ -9,7 +9,8 @@ const {
     getAllReqStatuses,
     getReqStatusById,
     getReqStatusByReqId,
-    deleteReqStatus
+    deleteReqStatus,
+    getAllReqStatusesByMenteeId
   } = require('./request.service');
   const pick = require('../general/pick')
   
@@ -63,7 +64,7 @@ const {
   const getAllRequestsByMentor = async (req, res, next) => {
     try {
       const mentorId = pick(req.params, ["mentorId"]);
-      const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
+      const options = pick(req.query, ["sortBy", "page", "limit"]);
       const requests = await getAllRequestsByMentorId( mentorId , options);
       res.status(200).json(requests);
     } catch (error) {
@@ -74,9 +75,8 @@ const {
   const getAllRequestsByMentee = async (req, res, next) => {
     try {
       const menteeId = req.params.menteeId;
-      const status = req.query.status;
-      const options = req.query.options;
-      const requests = await getAllRequestsByMenteeId({ menteeId, status }, options);
+      const options = pick(req.query, ["sortBy", "page", "limit"]);
+      const requests = await getAllRequestsByMenteeId({ menteeId }, options);
       res.status(200).json(requests);
     } catch (error) {
       next(error);
@@ -108,7 +108,7 @@ const {
   
   const getSingleReqStatusById = async (req, res, next) => {
     try {
-      const reqStatusId = req.params.id;
+      const reqStatusId = req.params.reqStatusId;
       const reqStatus = await getReqStatusById(reqStatusId);
       res.status(200).json(reqStatus);
     } catch (error) {
@@ -128,7 +128,7 @@ const {
   
   const deleteSingleReqStatus = async (req, res, next) => {
     try {
-      const reqStatusId = req.params.id;
+      const reqStatusId = req.params.reqStatusId;
       const deletedReqStatus = await deleteReqStatus(reqStatusId);
       res.status(200).json({
         message: "Request status deleted successfully",
@@ -138,6 +138,18 @@ const {
       next(error);
     }
   };
+
+  const getAllReqStatusesByMentee = async (req, res, next) => {
+    try {
+      const menteeId = req.params.menteeId;
+      const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
+      const reqStatuses = await getAllReqStatusesByMenteeId({ menteeId }, options);
+      res.status(200).json(reqStatuses);
+    } catch (error) {
+      next(error);
+    }
+    
+  }
   
   module.exports = {
     postCreateRequest,
@@ -150,6 +162,7 @@ const {
     getAllReqStatusesController,
     getSingleReqStatusById,
     getReqStatusByRequestId,
-    deleteSingleReqStatus
+    deleteSingleReqStatus,
+    getAllReqStatusesByMentee
   };
   

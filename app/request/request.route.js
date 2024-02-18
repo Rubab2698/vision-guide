@@ -11,7 +11,9 @@ const {
   getAllRequestsByMenteeIdSchema,
   createReqStatusSchema,
   deleteReqStatusSchema,
-  getReqStatusByIdSchema
+  getReqStatusByIdSchema,
+  getAllReqStatusesByMenteeIdSchema
+
 } = require('./request.joi.schema');
 
 // Create a new request
@@ -60,7 +62,7 @@ router.get(
 router.get(
   '/mentee/:menteeId',
   verifyAccessToken,
-  authorizationMiddleware( 'Admin', 'Mentee'),
+  authorizationMiddleware( ['Admin', 'Mentee']),
   validateSchema(getAllRequestsByMenteeIdSchema),
   controller.getAllRequestsByMentee
 );
@@ -77,7 +79,7 @@ router.post(
 
 // Get all request statuses
 router.get(
-    '/status',
+    '/allstatus/statuses',
     verifyAccessToken,
     authorizationMiddleware('Admin'),
     controller.getAllReqStatusesController
@@ -87,7 +89,7 @@ router.get(
   router.get(
     '/status/:reqStatusId',
     verifyAccessToken,
-    authorizationMiddleware('Admin', 'Mentor'),
+    authorizationMiddleware(['Admin', 'Mentor']),
     validateSchema(getReqStatusByIdSchema),
     controller.getSingleReqStatusById
   );
@@ -96,9 +98,16 @@ router.get(
   router.delete(
     '/status/:reqStatusId',
     verifyAccessToken,
-    authorizationMiddleware('Admin', 'Mentor'),
+    authorizationMiddleware(['Admin', 'Mentor']),
     validateSchema(deleteReqStatusSchema),
     controller.deleteSingleReqStatus
   );
   
+  router.get(
+    '/status/mentee/:menteeId',
+    verifyAccessToken,
+    authorizationMiddleware(['Admin', 'Mentee']),
+    validateSchema(getAllReqStatusesByMenteeIdSchema),
+    controller.getAllReqStatusesByMentee
+  );
   module.exports = router;
