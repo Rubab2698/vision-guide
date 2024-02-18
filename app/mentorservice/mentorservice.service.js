@@ -73,6 +73,7 @@ const deleteBasicService = async (id, role) => {
 
 const getAllBasicService = async (filters, options) => {
     try {
+        const { mentorId, cost, status } = filters;
         const { sortBy, page, limit } = options;
 
         // Parse page and limit as integers with default values
@@ -80,8 +81,14 @@ const getAllBasicService = async (filters, options) => {
         const parsedLimit = parseInt(limit) || 10;
 
         const mainPipeline = [];
-
-        // Add additional lookup stages if needed
+        const matchStage = {
+            $match: {
+                'mentorId': mentorId,
+                'cost': cost,
+                'status': status,
+            },
+        };
+        
 
         const projectStage = {
             $project: {

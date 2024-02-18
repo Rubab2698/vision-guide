@@ -40,7 +40,7 @@ const deleteBasicService = async (req, res) => {
 
 const getAllBasicService = async (req, res) => {
   try {
-    const filters = pick(req.query, ["sortBy", "page", "limit"]);
+    const filters = pick(req.query, ["mentorId", "cost", "status"]);
     const options = pick(req.query, ["sortBy", "page", "limit"]);
     const services = await service.getAllBasicService(filters, options);
     res.json(services);

@@ -13,10 +13,10 @@ router.post(
   verifyAccessToken,
   authorizationMiddleware('Mentor'),
   validateSchema(mentorProfileSchema),
-  // uploadToS3.fields([
-  //   { name: 'profilepic', maxCount: 1 },
-  //   { name: 'introvideo', maxCount: 1 }
-  // ]),
+  uploadToS3.fields([
+    { name: 'profilepic', maxCount: 1 },
+    { name: 'introvideo', maxCount: 1 }
+  ]),
   controller.createProfilerMentor
 );
 
