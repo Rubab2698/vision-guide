@@ -24,7 +24,7 @@ const mentorServiceSchema = new Schema(
             discount: Number
         },
         cost: Number,
-        mentorId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
+        mentorProfileId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
     },
     {
         timestamps: true
@@ -55,14 +55,7 @@ mentorServiceSchema.pre('save', async function (next) {
     }
 });
 
-mentorServiceSchema.pre('findOneAndUpdate', async function (next) {
-    const docToUpdate = await this.model.findOne(this.getQuery());
-    if (docToUpdate && docToUpdate.servicePackages) {
-        const hours = docToUpdate.servicePackages.daysOfWeek.length;
-        this.set({ cost: docToUpdate.perHourRate * hours - docToUpdate.servicePackages.discount });
-    }
-    next();
-});
+
 
 
 const MentorServiceSchema = mongoose.model('MentorServiceSchema', mentorServiceSchema);
