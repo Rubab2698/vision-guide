@@ -31,7 +31,8 @@ const createProfileMentor = async (req) => {
         }
 
         // Check if a profile with the provided userName already exists (case-insensitive)
-        const existingUserName = await Profile.findOne({ userName: { $regex: new RegExp(`^${req.body.userName}$`, 'i') } });
+        const { userName } = req.body; // Destructure the userName object from req.body
+        const existingUserName = await Profile.findOne({ userName: { $regex: new RegExp(`^${userName.firstName}${userName.lastName}$`, 'i') } });
         if (existingUserName) {
             throw new Error('Profile with this userName already exists.');
         }
@@ -85,41 +86,43 @@ const updateProfileMentor = async (profileId, role, updatedData, files) => {
             throw new Error('Profile not found');
         }
         if (updatedData.experience !== undefined) {
-            const updatedExperiences = updatedData.experience;
+            // const updatedExperiences = updatedData.experience;
 
-            updatedExperiences.forEach(updatedExp => {
-                const experienceIndex = updatedExperiences.indexOf(updatedExp);
-                const newExperienceData = {
-                    domain: updatedExp.domain,
-                    technology: updatedExp.technology,
-                    years: updatedExp.years,
-                };
+            // updatedExperiences.forEach(updatedExp => {
+            //     const experienceIndex = updatedExperiences.indexOf(updatedExp);
+            //     const newExperienceData = {
+            //         domain: updatedExp.domain,
+            //         technology: updatedExp.technology,
+            //         years: updatedExp.years,
+            //     };
 
-                if (experienceIndex !== undefined) {
+            //     if (experienceIndex !== undefined) {
                     // Update the specific index in the experiences array
-                    profile.experiences[experienceIndex] = newExperienceData;
-                }
-            });
+                    profile.experiences = updatedData.experience;
+            //     }
+            // });
         }
         if (updatedData.domains !== undefined) {
-            const updatedDomains = updatedData.domains;
+            // const updatedDomains = updatedData.domains;
 
-            updatedDomains.forEach(updatedDom => {
-                const domainIndex = updatedDomains.indexOf(updatedDom);
-                if (domainIndex !== undefined) {
-                    profile.domains[domainIndex] = updatedDom;
-                }
-            });
+            // updatedDomains.forEach(updatedDom => {
+            //     const domainIndex = updatedDomains.indexOf(updatedDom);
+            //     if (domainIndex !== undefined) {
+            //         profile.domains[domainIndex] = updatedDom;
+            //     }
+            // });
+            profile.domains = updatedData.domains;
         }
         if (updatedData.languages !== undefined) {
-            const updatedlanguage = updatedData.languages;
+            // const updatedlanguage = updatedData.languages;
 
-            updatedlanguage.forEach(updatedlang => {
-                const langIndex = updatedlanguage.indexOf(updatedlang);
-                if (langIndex !== undefined) {
-                    profile.languages[langIndex] = updatedlang;
-                }
-            });
+            // updatedlanguage.forEach(updatedlang => {
+            //     const langIndex = updatedlanguage.indexOf(updatedlang);
+            //     if (langIndex !== undefined) {
+            //         profile.languages[langIndex] = updatedlang;
+            //     }
+            // });
+            profile.languages = updatedData.languages;
         }
         if (updatedData.social_media !== undefined) {
             const updatedSocialMedia = updatedData.social_media;
@@ -132,19 +135,39 @@ const updateProfileMentor = async (profileId, role, updatedData, files) => {
                 profile.social_media.github = updatedSocialMedia.github;
             }
         }
-        if (updatedData.bankDetails !== undefined) {
-            profile.bankDetails = (await BankDetails.findByIdAndUpdate(profile.bankDetails, { $set: updatedData.bankDetails }, { new: true }))._id;
+
+        if(updatedData.education !== undefined) {
+            profile.education = updatedData.education;
         }
-        if (updatedData) {
+
+        if (updatedData.headline !== undefined) {
             profile.headline = updatedData.headline;
+        }
+        if(updatedData.available !== undefined) {
+            profile.available = updatedData.available;
+        }
+        if(updatedData.city !== undefined){
             profile.city = updatedData.city;
+        }
+        if(updatedData.province !== undefined){
+            profile.province = updatedData.province;
+        }
+        if(updatedData.zipcode !== undefined){
+            
+            profile.zipcode = updatedData.zipcode;
+        }
+        if(updatedData.phoneNumber !== undefined){
             profile.phoneNumber = updatedData.phoneNumber;
+        }
+        if(updatedData.userName !== undefined){
             profile.userName = updatedData.userName;
+        }
+        if(updatedData.email !== undefined){
             profile.email = updatedData.email;
-            profile.featured = updatedData.featured;
+        }
             profile.role = role;
             await profile.save();
-        }
+        
         if (files) {
             const profilePic = files['profilepic'] ? files['profilepic'][0] : null;
             const introVideo = files['introvideo'] ? files['introvideo'][0] : null;
@@ -185,11 +208,11 @@ const createMenteeProfile = async (req) => {
         }
 
         // Check if a profile with the provided userName already exists (case-insensitive)
-        const existingUserName = await Profile.findOne({ userName: { $regex: new RegExp(`^${req.body.userName}$`, 'i') } });
+        const { userName } = req.body; // Destructure the userName object from req.body
+        const existingUserName = await Profile.findOne({ userName: { $regex: new RegExp(`^${userName.firstName}${userName.lastName}$`, 'i') } });
         if (existingUserName) {
             throw new Error('Profile with this userName already exists.');
         }
-
         // Create a Profile object for mentee
         const profile = new Profile({
             email: req.body.email,
@@ -201,16 +224,11 @@ const createMenteeProfile = async (req) => {
             city: req.body.city,
             languages: req.body.languages,
             featured: req.body.featured || false,
+            userId: req.payload._id,
         });
         await profile.save();
 
-        const menteeProfile = profile.toObject();
-        delete menteeProfile.experiences;
-        delete menteeProfile.domains;
-
-        // Save the Profile object
-
-        return menteeProfile;
+        return profile;
     } catch (error) {
         throw error;
     }
@@ -345,14 +363,25 @@ const deleteProfileByIdMentor = async (id, role) => {
             throw new Error('Unauthorized');
         }
 
-        const profile = await Profile.findByIdAndDelete(id);
+        const profile = await Profile.findById(id);
         if (!profile) {
             throw new Error('Profile not found')
         }
+        
+        if(profile.role !== 'Mentor' && profile.role !== 'Admin' ){
+            throw new Error('Unauthorized');
+        }
 
-        profile.profilePicture = file_del(profile.profilePicture);
-        profile.introVideo = file_del(profile.introVideo);
-        return profile;
+        const deletedProfile = await Profile.findByIdAndDelete(id);
+        if (!deletedProfile) {
+            throw new Error('Error deleting profile');
+        }
+
+        // Delete profile picture and intro video files
+        file_del(profile.profilePicture);
+        file_del(profile.introVideo);
+
+        return deletedProfile;
     } catch (error) {
         throw error;
     }
@@ -364,14 +393,25 @@ const deleteProfileByIdMentee = async (id, role) => {
             throw new Error('Unauthorized');
         }
 
-        const profile = await Profile.findByIdAndDelete(id);
+        const profile = await Profile.findById(id);
         if (!profile) {
             throw new Error('Profile not found')
         }
 
-        profile.profilePicture = file_del(profile.profilePicture);
-        profile.introVideo = file_del(profile.introVideo);
-        return profile;
+        if(profile.role !== 'Mentee' && profile.role !== 'Admin' ){
+            throw new Error('Unauthorized');
+        }
+
+        const deletedProfile = await Profile.findByIdAndDelete(id);
+        if (!deletedProfile) {
+            throw new Error('Error deleting profile');
+        }
+
+        // Delete profile picture and intro video files
+        file_del(profile.profilePicture);
+        file_del(profile.introVideo);
+
+        return deletedProfile;
     } catch (error) {
         throw error;
     }

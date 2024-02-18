@@ -8,8 +8,10 @@ const bankDetailsSchema = Joi.object({
 });
 
 const mentorProfileSchema = Joi.object({
-  params: Joi.object({ profileId:Joi.string().alphanum().min(24).max(24).required() }),
-  query: Joi.object({
+  params: Joi.object({ 
+    profileId: Joi.string().alphanum().min(24).max(24).required()
+   }),
+   query: Joi.object({
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required(),
@@ -17,7 +19,7 @@ const mentorProfileSchema = Joi.object({
   }),
   body: Joi.object({
     email: Joi.string().email().lowercase(),
-    profilePicture: Joi.string(),
+    profilepic: Joi.string(),
     userName: Joi.object({
       firstName: Joi.string(),
       lastName: Joi.string()
@@ -50,7 +52,7 @@ const mentorProfileSchema = Joi.object({
       startDate: Joi.date(),
       endDate: Joi.date()
     }),
-    introVideo: Joi.string(),
+    introvideo: Joi.string(),
     available: Joi.boolean().default(true),
   })
 });
@@ -72,7 +74,10 @@ const menteeProfileSchema = Joi.object({
   body: Joi.object({
     profilePicture:Joi.string(),
     email: Joi.string().email().required(),
-    userName: Joi.string(),
+    userName: Joi.object({
+      firstName: Joi.string(),
+      lastName: Joi.string()
+    }),
     phoneNumber: Joi.number(),
     headline: Joi.string(),
     city: Joi.string(),
