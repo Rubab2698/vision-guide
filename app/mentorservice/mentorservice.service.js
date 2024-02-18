@@ -44,10 +44,13 @@ const updateBasicService = async (id, role, body) => {
         if (role !== "Mentor" && role !== "Admin") {
             throw new Error('Unauthorized')
         }
-        const service = await MentorServiceSchema.findOneAndUpdate({ _id: id }, { $set: body }, { new: true })
+        const service = await MentorServiceSchema.findById(id);
+
         if (!service) {
             throw new Error('Service not updated')
         }
+        Object.assign(service, body);
+        service.save();
         return service
     }
     catch (error) {

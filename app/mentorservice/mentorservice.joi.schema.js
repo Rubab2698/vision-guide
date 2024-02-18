@@ -7,7 +7,7 @@ const createBasicServiceSchema = Joi.object({
     time: Joi.date().required(),
     noOfHours: Joi.number().default(1),
     perHourRate: Joi.number().required(),
-    mentorId: Joi.string().required(),
+    mentorProfileId: Joi.string().required(),
     discountOnPackage: Joi.string().description('Discount on package'),
     servicePackages: Joi.object({
       daysOfWeek: Joi.array().items(Joi.string()),
@@ -31,7 +31,7 @@ const updateBasicServiceSchema = Joi.object({
       daysOfWeek: Joi.array().items(Joi.string()),
       discount:Joi.number().required()
     }),
-    mentorId: Joi.string(), // Assuming mentorId can be updated
+    mentorProfileId: Joi.string(), // Assuming mentorId can be updated
   })
 });
 
