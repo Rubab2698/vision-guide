@@ -6,14 +6,13 @@ const signAccessToken = async function (user) {
     try {
         return new Promise((res, rej) => {
             const payload = {
-                sub: user.id,       // User ID
+                sub: user._id,       // User ID
                 email: user.email,
                 role: user.role,
-                userName: user.userName
             }
             const secret = process.env.ACEESS_SECRET_TOKEN;
             const options = {
-                expiresIn: '24h',
+                expiresIn: '64h',
                 issuer: 'test123.com',
                 // audience: user
             }
@@ -39,7 +38,6 @@ const signRefreshToken = async function (user) {
             const payload = {
                 sub: user.id,
                 email: user.email,
-                userName: user.userName,
                 role: user.role
             }
             const secret = process.env.ACEESS_SECRET_TOKEN;

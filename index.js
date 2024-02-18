@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const createError = require('http-errors')
-const userRouter = require('./user/user.routes');
+const router = require('./app/route')
 require('dotenv').config();
 
 
-const port = 5000;
+const port = 3000;
 
 const app = express();
 app.use(bodyParser.json());        //for handling json data
@@ -16,7 +16,7 @@ app.use(bodyParser.json());        //for handling json data
 app.use(bodyParser.urlencoded({ extended: true })); // for handling form data
 app.use(cors());   //allowing to access data from all other origins
 
-mongoose.connect('mongodb+srv://database:mydatabase@databse1.efkwybj.mongodb.net/Mentor Guide',
+mongoose.connect('mongodb+srv://database:mydatabase@databse1.efkwybj.mongodb.net/Mentor-Guide',
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
@@ -27,7 +27,7 @@ mongoose.connection.on('connected', () => { console.log("mondodb connected") })
 mongoose.connection.on('error', (err) => { console.log(err.msg) })
 mongoose.connection.on('disconnected', () => { console.log("Mongooose connection is disconnected") })
 
-app.use('/users', userRouter);
+app.use('/vision-guide', router);
 
 
 

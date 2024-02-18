@@ -13,7 +13,8 @@ const s3 = new S3Client({
 
 const myBucket = process.env.AWS_BUCKET_NAME;
 console.log(myBucket)
-const allowedImageFormats = ['image/jpeg', 'image/png'];
+const allowedMediaFormats = ['image/jpeg', 'image/png', 'video/mp4', 'video/quicktime'];
+
 
 const uploadToS3 = multer({
     storage: multerS3({
@@ -26,12 +27,12 @@ const uploadToS3 = multer({
         }
     }),
     fileFilter: function (req, file, cb) {
-        if (allowedImageFormats.includes(file.mimetype)) {
+        if (allowedMediaFormats.includes(file.mimetype)) {
             // Allow the upload
             cb(null, true);
         } else {
             // Reject the upload
-            cb(new Error('Invalid file format. Only JPG and PNG images are allowed.'));
+            cb(new Error('Invalid file format. Only JPG and PNG images and  mp4 videos are allowed.'));
         }
     }
 });
