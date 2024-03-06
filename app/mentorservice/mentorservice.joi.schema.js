@@ -4,7 +4,10 @@ const Joi = require('joi');
 const createBasicServiceSchema = Joi.object({
   body: Joi.object({
     daysOfWeek: Joi.array().items(Joi.string()).required(),
-    time: Joi.date().required(),
+    availability: Joi.object({
+      startTime: Joi.string().required(),
+      endTime: Joi.string().required()
+    }),
     noOfHours: Joi.number().default(1),
     perHourRate: Joi.number().required(),
     mentorProfileId: Joi.string().required(),
