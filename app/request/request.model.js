@@ -1,8 +1,12 @@
+const { string } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 // Define Request Schema
 const requestSchema = new Schema({
+    name: {
+        type: String
+    },
     day: {
         type: String,
         required: true
@@ -31,6 +35,34 @@ const requestSchema = new Schema({
     },
     bidAmount: {
         type: Number, 
+    },
+    email: {
+        type: String
+    },
+    topic: {
+        type: String
+    },
+    description: {
+        type: String
+    },
+    language: {
+        type: String
+    },
+    requestType:{
+        type:String,
+        enum:['oneToOne', 'package'],
+        default: 'oneToOne'
+    },
+    package:{
+        noOfdays:{
+            type:Number
+        },
+        amount:{
+            type:Number
+        },
+        time:{
+            type:String
+        }
     }
 },{
     timestamps: true,
