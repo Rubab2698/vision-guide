@@ -8,7 +8,18 @@ const createRequestSchema = Joi.object({
     endTime: Joi.string().required(),
     mentorId: Joi.string().required(),
     menteeId: Joi.string().required(),
-    date: Joi.date().required()
+    date: Joi.date().required(),
+    requestType: Joi.string().valid('oneToOne', 'package'),
+    package: Joi.object({
+      noOfdays: Joi.number().required(),
+      amount: Joi.number().required(),
+      time: Joi.string().required()
+    }),
+    email: Joi.string(),
+    topic: Joi.string(),
+    description: Joi.string().max(500).min(10),
+    language: Joi.string(),
+    name: Joi.string(),
   })
 });
 
