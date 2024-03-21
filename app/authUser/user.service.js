@@ -8,7 +8,10 @@ require("dotenv").config();
 const axios = require('axios');
 const { platform } = require('../general/enums')
 
+const getUserByID = async (userId) => {
+    return await User.findOne({ _id: userId })
 
+}
 const googleVerification = async (token) => {
     try {
         const data = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
@@ -392,7 +395,8 @@ module.exports = {
     getAllUsers,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUserByID
 }
 
 

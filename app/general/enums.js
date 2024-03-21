@@ -17,7 +17,8 @@ const status = {
 }
 const service = {
     BASIC: "oneToOneCall",
-    PACKAGE: "package"
+    PACKAGE: "package",
+    CHAT: "chat",
 }
 
 

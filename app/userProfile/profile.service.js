@@ -1,6 +1,6 @@
 const { BankDetails, Profile } = require('./profile.model');
 const file_del = require('../general/imagedel')
-
+const {getUserByID} = require('../authUser/user.service')
 
 
 
@@ -8,6 +8,14 @@ const createProfileMentor = async (req) => {
     try {
         if (req.payload.role !== "Mentor" && req.payload.role !== "Admin") {
             throw new Error('Unauthorized')
+        }
+        const user = await getUserByID(req.payload.sub)
+        if(!user){
+            throw new Error('User not found')
+        }
+        const alreadyCreated = await Profile.findOne({ userId: user._id });
+        if (alreadyCreated) {
+            throw new Error('Profile already created');
         }
         // Extract uploaded files
         let profilePicLocation ,introVideoLocation;
@@ -44,6 +52,15 @@ const createProfileMentor = async (req) => {
             years: parseInt(experienceData.years),
         }));
 
+        // Create Education objects for each education in the array
+        const education = (req.body.education || []).map(educationData => ({
+            instituite: educationData.instituite,
+            degree: educationData.degree,
+            domain: educationData.domain,
+            startDate: new Date(educationData.startDate),
+            endDate: new Date(educationData.endDate),
+        }));
+
         // Create a Profile object
         const profile = new Profile({
             email: req.body.email,
@@ -60,7 +77,7 @@ const createProfileMentor = async (req) => {
             languages: req.body.languages,
             social_media: req.body.social_media,
             featured: req.body.featured || false,
-            education: req.body.education, // Adding education field
+            education:education, // Adding education field
             introVideo: introVideoLocation,
             available: req.body.available || true, // Adding available field
             userId: req.payload.sub
@@ -197,6 +214,14 @@ const createMenteeProfile = async (req) => {
         // Extract uploaded files
         if (req.payload.role !== "Mentee" && req.payload.role !== "Admin") {
             throw new Error('Unauthorized')
+        }
+        const user = await getUserByID(req.payload.sub)
+        if(!user){
+            throw new Error('User not found')
+        }
+        const alreadyCreated = await Profile.findOne({ userId: user._id });
+        if (alreadyCreated) {
+            throw new Error('Profile already created');
         }
         const profilePic = req.files['profilepic'] ? req.files['profilepic'][0] : null;
         const profilePicLocation = profilePic ? profilePic.location : null;

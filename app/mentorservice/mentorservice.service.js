@@ -7,7 +7,7 @@
         }
 
         const alreadyExists = await MentorServiceSchema.find({
-            mentorId: req.body.mentorId,
+            mentorProfileId: req.body.mentorProfileId,
         });
 
         if (alreadyExists === null || alreadyExists.length === 0) {
