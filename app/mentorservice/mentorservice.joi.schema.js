@@ -1,5 +1,5 @@
 const Joi = require('joi');
-
+const { service } = require('../general/enums');
 // Joi schema for creating a basic service
 const createBasicServiceSchema = Joi.object({
   body: Joi.object({
@@ -8,6 +8,7 @@ const createBasicServiceSchema = Joi.object({
       startTime: Joi.string().required(),
       endTime: Joi.string().required()
     }),
+    serviceType: Joi.array().items(Joi.string().valid(...Object.values(service))),
     noOfHours: Joi.number().default(1),
     perHourRate: Joi.number().required(),
     mentorProfileId: Joi.string().required(),

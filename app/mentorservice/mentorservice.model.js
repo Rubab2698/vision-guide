@@ -4,6 +4,11 @@ const { service } = require('../general/enums');
 
 const mentorServiceSchema = new Schema(
     {
+        serviceType: [{
+            type: String,
+            enum: Object.values(service),
+            default: service.BASIC
+        }],
         daysOfWeek: [String],
         availability : {
             startTime: String,
@@ -25,6 +30,7 @@ const mentorServiceSchema = new Schema(
         },
         cost: Number,
         mentorProfileId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
+        
     },
     {
         timestamps: true

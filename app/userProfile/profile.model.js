@@ -46,21 +46,24 @@ const profileSchema = new Schema(
       type: Boolean,
       default: false
     },
-    education: {
-      instituite: String,
-      degree: {
-        type: String,
-        enum: Object.values(degree)
-      },
-      domain: String,
-      startDate: Date,
-      endDate: Date
-    },
+    education: [
+      {
+        instituite: String,
+        degree: {
+          type: String,
+          enum: Object.values(degree)
+        },
+        domain: String,
+        startDate: Date,
+        endDate: Date
+      }
+    ],
     introVideo: String,
     available: {
       type: Boolean,
       default: true
     },
+    yearsOfExperience: Number,
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   {

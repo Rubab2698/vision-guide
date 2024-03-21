@@ -35,6 +35,7 @@ const mentorProfileSchema = Joi.object({
       endDate: Joi.date(),
       description: Joi.string()
     })),
+    yearsOfExperience: Joi.number().required(),
     domains: Joi.array().items(Joi.string()),
     city: Joi.string(),
     province: Joi.string(),
@@ -45,13 +46,13 @@ const mentorProfileSchema = Joi.object({
       github: Joi.string()
     }),
     featured: Joi.boolean().default(false),
-    education: Joi.object({
+    education: Joi.array().items(Joi.object({
       instituite: Joi.string(),
       degree: Joi.string().valid(...Object.values(degree)),
       domain: Joi.string(),
       startDate: Joi.date(),
       endDate: Joi.date()
-    }),
+    })),
     introvideo: Joi.string(),
     available: Joi.boolean().default(true),
   })
