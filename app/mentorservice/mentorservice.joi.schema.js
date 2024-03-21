@@ -8,7 +8,7 @@ const createBasicServiceSchema = Joi.object({
       startTime: Joi.string().required(),
       endTime: Joi.string().required()
     }),
-    serviceType: Joi.string().valid(...Object.values(service)),
+    serviceType: Joi.array().items(Joi.string().valid(...Object.values(service))),
     noOfHours: Joi.number().default(1),
     perHourRate: Joi.number().required(),
     mentorProfileId: Joi.string().required(),

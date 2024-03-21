@@ -4,11 +4,11 @@ const { service } = require('../general/enums');
 
 const mentorServiceSchema = new Schema(
     {
-        serviceType: {
+        serviceType: [{
             type: String,
             enum: Object.values(service),
             default: service.BASIC
-        },
+        }],
         daysOfWeek: [String],
         availability : {
             startTime: String,
