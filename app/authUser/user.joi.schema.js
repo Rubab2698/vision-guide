@@ -9,6 +9,7 @@ const _register = Joi.object({
     email: Joi.string().email({ minDomainSegments: 2, tlds: allowedDomainExtensions }).lowercase().required(),
     password: Joi.string().min(8).required(),
     role: Joi.string().valid(...Object.values(userTypes)).required(),
+    userName: Joi.string(),
   })
 })
 const loginSchema = Joi.object({

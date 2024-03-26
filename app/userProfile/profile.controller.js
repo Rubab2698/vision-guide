@@ -18,14 +18,14 @@ const createProfilerMentor = async (req, res) => {
 
 const updateProfileMentor = async (req, res) => {
   try {
-    const updatedProfile = await service.updateProfileMentor(req.params.profileId,req.payload.role, req.body,req.files);
+    const updatedProfile = await service.updateProfileMentor(req.params.profileId,req.payload.role, req.body,req.files,req.payload.user);
     res.json(updatedProfile);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };const updateProfileMentee = async (req, res) => {
   try {
-    const updatedProfile = await service.updateMenteeProfile(req.params.profileId,req.payload.role, req.body,req.files);
+    const updatedProfile = await service.updateMenteeProfile(req.params.profileId,req.payload.role, req.body,req.files,req.payload.user);
     res.json(updatedProfile);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,7 +55,7 @@ const getAllProfiles = async (req, res) => {
 
 const deleteProfileByIdMentor = async (req, res) => {
   try {
-    const deletedProfile = await service.deleteProfileByIdMentor(req.params.profileId,req.payload.role);
+    const deletedProfile = await service.deleteProfileByIdMentor(req.params.profileId,req.payload.role,req.payload.sub);
     res.json(deletedProfile);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -63,7 +63,7 @@ const deleteProfileByIdMentor = async (req, res) => {
 }
 const deleteProfileByIdMentee = async (req, res) => {
   try {
-    const deletedProfile = await service.deleteProfileByIdMentee(req.params.profileId,req.payload.role);
+    const deletedProfile = await service.deleteProfileByIdMentee(req.params.profileId,req.payload.role,req.payload.sub);
     res.json(deletedProfile);
   } catch (error) {
     res.status(500).json({ error: error.message });

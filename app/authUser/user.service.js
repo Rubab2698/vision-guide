@@ -355,7 +355,7 @@ const deleteUser = async function (userId) {
 }
 const signUpByEmail = async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password, role , userName } = req.body;
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             throw createError.Conflict('User with this email already exists.');
@@ -364,7 +364,8 @@ const signUpByEmail = async (req, res) => {
                 email,
                 role,
                 password,
-                platform: platform.email
+                platform: platform.email,
+                userName
             });
             const newAccessToken = await authJwt.signAccessToken(newUser);
             const newRefreshToken = await authJwt.signRefreshToken(newUser);

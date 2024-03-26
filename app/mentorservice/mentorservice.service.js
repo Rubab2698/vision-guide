@@ -1,27 +1,31 @@
- const {MentorServiceSchema} = require('./mentorservice.model')
-
- const createBasicService = async (req) => {
+const { MentorServiceSchema } = require('./mentorservice.model')
+const { Profile } = require('../userProfile/profile.model')
+const mongoose = require('mongoose')
+const createBasicService = async (req) => {
     try {
         if (req.payload.role !== "Mentor" && req.payload.role !== "Admin") {
             throw new Error('Unauthorized');
         }
+        const profile = await Profile.findOne({ userId: req.payload.sub });
 
-        const alreadyExists = await MentorServiceSchema.find({
+        if (req.payload.role !== "Mentor" || !profile || profile.role !== "Mentor") {
+            throw new Error('Unauthorized to create basic service');
+        }
+        const alreadyExists = await MentorServiceSchema.findOne({
             mentorProfileId: req.body.mentorProfileId,
         });
 
-        if (alreadyExists === null || alreadyExists.length === 0) {
-            // If no existing records found
-            const service = new MentorServiceSchema({
-                ...req.body
-            });
-
-           const savedService = await service.save();
-            return savedService;
-        } else {
-            // If existing records found
+        if (alreadyExists) {
             throw new Error('You have already created basic Service');
         }
+        // If no existing records found
+        const service = new MentorServiceSchema({
+            ...req.body
+        });
+
+        const savedService = await service.save();
+        return savedService;
+
     } catch (error) {
         throw error;
     }
@@ -39,15 +43,23 @@ const getServiceById = async (id) => {
     }
 }
 
-const updateBasicService = async (id, role, body) => {
+const updateBasicService = async (id, role, body, userId) => {
     try {
         if (role !== "Mentor" && role !== "Admin") {
             throw new Error('Unauthorized')
         }
+        const profile = await Profile.findOne({ userId: userId });
+
+        if (role !== "Mentor" || !profile || profile.role !== "Mentor") {
+            throw new Error('Unauthorized to update basic service');
+        }
         const service = await MentorServiceSchema.findById(id);
 
         if (!service) {
-            throw new Error('Service not updated')
+            throw new Error('Service not found')
+        }
+        if (service.mentorProfileId !== profile._id) {
+            throw new Error('Unauthorized')
         }
         Object.assign(service, body);
         service.save();
@@ -58,21 +70,38 @@ const updateBasicService = async (id, role, body) => {
     }
 }
 
-const deleteBasicService = async (id, role) => {
+const deleteBasicService = async (id, role, userId) => {
     try {
         if (role !== "Mentor" && role !== "Admin") {
-            throw new Error('Unauthorized')
+            throw new Error('Unauthorized');
         }
-        const service = await MentorServiceSchema.findByIdAndDelete(id)
+
+        const profile = await Profile.findOne({ userId: userId });
+
+        if (!profile || profile.role !== "Mentor") {
+            throw new Error('Unauthorized to delete basic service');
+        }
+
+        if (role === "Mentor") {
+            const service = await MentorServiceSchema.findById(id);
+            if (!service) {
+                throw new Error('Service not found');
+            }
+            if (!service.mentorProfileId.equals(profile._id)) {
+                throw new Error('Unauthorized');
+            }
+        }
+
+        const service = await MentorServiceSchema.findByIdAndDelete(id);
         if (!service) {
-            throw new Error('Service not deleted')
+            throw new Error('Service not deleted');
         }
-        return service
+        return service;
+    } catch (error) {
+        throw error;
     }
-    catch (error) {
-        throw error
-    }
-}
+};
+
 
 const getAllBasicService = async (filters, options) => {
     try {
@@ -91,7 +120,7 @@ const getAllBasicService = async (filters, options) => {
                 'status': status,
             },
         };
-        
+
 
         const projectStage = {
             $project: {
@@ -113,10 +142,12 @@ const getAllBasicService = async (filters, options) => {
 
         // Populate mentor profiles
         mainPipeline.push({ $lookup: { from: 'profiles', localField: 'mentorId', foreignField: '_id', as: 'mentorProfile' } });
-        mainPipeline.push({ $unwind:  {
-            'path': '$mentorProfile', 
-            'preserveNullAndEmptyArrays': true
-          }});
+        mainPipeline.push({
+            $unwind: {
+                'path': '$mentorProfile',
+                'preserveNullAndEmptyArrays': true
+            }
+        });
 
         // Execute the main pipeline
         const results = await MentorServiceSchema.aggregate(mainPipeline);

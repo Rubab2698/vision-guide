@@ -30,7 +30,8 @@ const profileSchema = new Schema(
         companyName: String,
         joiningDate: Date,
         endDate: Date,
-        description: String
+        description: String,
+        designation: String
       }
     ],
     domains: [String],

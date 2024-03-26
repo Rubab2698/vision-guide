@@ -11,7 +11,7 @@ const { menteeProfileSchema, mentorProfileSchema,idSchema ,menteeUpdate,getAllPr
 router.post(
   '/mentor',
   verifyAccessToken,
-  authorizationMiddleware('Mentor'),
+  authorizationMiddleware(['Mentor', 'Admin']),
   validateSchema(mentorProfileSchema),
   uploadToS3.fields([
     { name: 'profilepic', maxCount: 1 },
@@ -24,7 +24,7 @@ router.post(
 router.patch(
   '/mentor/:profileId',
   verifyAccessToken,
-  authorizationMiddleware('Mentor'),
+  authorizationMiddleware(['Mentor', 'Admin']),
   validateSchema(mentorProfileSchema),
   uploadToS3.fields([
     { name: 'profilepic', maxCount: 1 },
@@ -36,7 +36,7 @@ router.patch(
 // Get a specific mentor profile by ID
 router.get(
   '/:profileId',
-  verifyAccessToken,
+  // verifyAccessToken,
   validateSchema(idSchema),
   controller.getProfileById
 
@@ -57,7 +57,7 @@ router.delete(
 router.post(
   '/mentee',
   verifyAccessToken,
-  authorizationMiddleware('Mentee'),
+  authorizationMiddleware(['Mentee', 'Admin']),
   validateSchema(menteeProfileSchema),
   uploadToS3.fields([
     { name: 'profilepic', maxCount: 1 }
@@ -69,7 +69,7 @@ router.post(
 router.patch(
   '/mentee/:profileId',
   verifyAccessToken,
-  authorizationMiddleware('Mentee'),
+  authorizationMiddleware(['Mentee', 'Admin']),
   validateSchema(menteeUpdate),
   uploadToS3.fields([
     { name: 'profilepic', maxCount: 1 }
