@@ -12,7 +12,7 @@ const createBasicService = async (req, res) => {
 
 const updateBasicService = async (req, res) => {
   try {
-    const updatedService = await service.updateBasicService(req.params.serviceId, req.payload.role, req.body);
+    const updatedService = await service.updateBasicService(req.params.serviceId, req.payload.role, req.body, req.payload.sub);
     res.json(updatedService);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -30,7 +30,7 @@ const getBasicServiceById = async (req, res) => {
 
 const deleteBasicService = async (req, res) => {
   try {
-    const deletedService = await service.deleteBasicService(req.params.serviceId, req.payload.role);
+    const deletedService = await service.deleteBasicService(req.params.serviceId, req.payload.role, req.payload.sub);
     // console.log(deletedService)
     res.json({ message: 'Service deleted successfully', deletedService });
   } catch (error) {

@@ -9,7 +9,7 @@ const { createBasicServiceSchema, updateBasicServiceSchema,idSchema, getAllBasic
 router.post(
   '/',
   verifyAccessToken,
-  authorizationMiddleware('Mentor', 'Admin'),
+  authorizationMiddleware(['Mentor', 'Admin']),
   validateSchema(createBasicServiceSchema),
   controller.createBasicService
 );
@@ -18,20 +18,20 @@ router.post(
 router.patch(
   '/:serviceId',
   verifyAccessToken,
-  authorizationMiddleware('Mentor', 'Admin'),
+  authorizationMiddleware(['Mentor', 'Admin']),
   validateSchema(updateBasicServiceSchema),
   controller.updateBasicService
 );
 router.get('/:serviceId', 
 verifyAccessToken, 
-authorizationMiddleware('Mentor', 'Admin'),
+authorizationMiddleware(['Mentor', 'Admin']),
 validateSchema(idSchema),
  controller.getBasicServiceById);
 // Delete a basic service by ID
 router.delete(
   '/:serviceId',
   verifyAccessToken,
-  authorizationMiddleware('Mentor', 'Admin'),
+  authorizationMiddleware(['Mentor', 'Admin']),
   validateSchema(idSchema),
   controller.deleteBasicService
 );

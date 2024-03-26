@@ -1,7 +1,7 @@
 const { BankDetails, Profile } = require('./profile.model');
 const file_del = require('../general/imagedel')
-const {getUserByID} = require('../authUser/user.service')
-
+const { getUserByID } = require('../authUser/user.service')
+const mongoose = require('mongoose');
 
 
 const createProfileMentor = async (req) => {
@@ -9,28 +9,32 @@ const createProfileMentor = async (req) => {
         if (req.payload.role !== "Mentor" && req.payload.role !== "Admin") {
             throw new Error('Unauthorized')
         }
-        const user = await getUserByID(req.payload.sub)
-        if(!user){
-            throw new Error('User not found')
+
+        const user = req.payload.user
+
+
+        if (user.role === "Mentor") {
+            const alreadyCreated = await Profile.findOne({ userId: user._id });
+            if (alreadyCreated) {
+                throw new Error('Profile already created');
+            }
+
         }
-        const alreadyCreated = await Profile.findOne({ userId: user._id });
-        if (alreadyCreated) {
-            throw new Error('Profile already created');
-        }
+
         // Extract uploaded files
-        let profilePicLocation ,introVideoLocation;
+        let profilePicLocation, introVideoLocation;
         if (req.files) {
             // Extract profile picture
             const profilePic = req.files['profilepic'] ? req.files['profilepic'][0] : null;
-             profilePicLocation = profilePic ? profilePic.location : null;
-        
+            profilePicLocation = profilePic ? profilePic.location : null;
+
             // Extract intro video
             const introVideo = req.files['introvideo'] ? req.files['introvideo'][0] : null;
-             introVideoLocation = introVideo ? introVideo.location : null;
+            introVideoLocation = introVideo ? introVideo.location : null;
         } else {
             // Handle case where req.files is not available
-             profilePicLocation = null;
-             introVideoLocation = null;
+            profilePicLocation = null;
+            introVideoLocation = null;
         }
         // Check if a profile with the provided email already exists
         const existingProfile = await Profile.findOne({ email: req.body.email });
@@ -50,6 +54,11 @@ const createProfileMentor = async (req) => {
             domain: experienceData.domain,
             technology: experienceData.technology,
             years: parseInt(experienceData.years),
+            companyName: experienceData.companyName,
+            joiningDate: new Date(experienceData.joiningDate),
+            endDate: new Date(experienceData.endDate),
+            description: experienceData.description,
+            designation: experienceData.designation
         }));
 
         // Create Education objects for each education in the array
@@ -77,12 +86,12 @@ const createProfileMentor = async (req) => {
             languages: req.body.languages,
             social_media: req.body.social_media,
             featured: req.body.featured || false,
-            education:education, // Adding education field
+            education: education, // Adding education field
             introVideo: introVideoLocation,
             available: req.body.available || true, // Adding available field
             userId: req.payload.sub
         });
-        
+
         // Save the Profile object
         await profile.save();
 
@@ -92,116 +101,59 @@ const createProfileMentor = async (req) => {
     }
 };
 
-const updateProfileMentor = async (profileId, role, updatedData, files) => {
+const updateProfileMentor = async (profileId, role, updatedData, files, user) => {
     try {
         if (role !== 'Mentor' && role !== 'Admin') {
             throw new Error('Unauthorized');
         }
 
         let profile = await Profile.findById(profileId);
+        
         if (!profile) {
             throw new Error('Profile not found');
         }
-        if (updatedData.experience !== undefined) {
-            // const updatedExperiences = updatedData.experience;
-
-            // updatedExperiences.forEach(updatedExp => {
-            //     const experienceIndex = updatedExperiences.indexOf(updatedExp);
-            //     const newExperienceData = {
-            //         domain: updatedExp.domain,
-            //         technology: updatedExp.technology,
-            //         years: updatedExp.years,
-            //     };
-
-            //     if (experienceIndex !== undefined) {
-                    // Update the specific index in the experiences array
-                    profile.experiences = updatedData.experience;
-            //     }
-            // });
-        }
-        if (updatedData.domains !== undefined) {
-            // const updatedDomains = updatedData.domains;
-
-            // updatedDomains.forEach(updatedDom => {
-            //     const domainIndex = updatedDomains.indexOf(updatedDom);
-            //     if (domainIndex !== undefined) {
-            //         profile.domains[domainIndex] = updatedDom;
-            //     }
-            // });
-            profile.domains = updatedData.domains;
-        }
-        if (updatedData.languages !== undefined) {
-            // const updatedlanguage = updatedData.languages;
-
-            // updatedlanguage.forEach(updatedlang => {
-            //     const langIndex = updatedlanguage.indexOf(updatedlang);
-            //     if (langIndex !== undefined) {
-            //         profile.languages[langIndex] = updatedlang;
-            //     }
-            // });
-            profile.languages = updatedData.languages;
-        }
-        if (updatedData.social_media !== undefined) {
-            const updatedSocialMedia = updatedData.social_media;
-
-            if (updatedSocialMedia.linkedin !== undefined) {
-                profile.social_media.linkedin = updatedSocialMedia.linkedin;
-            }
-
-            if (updatedSocialMedia.github !== undefined) {
-                profile.social_media.github = updatedSocialMedia.github;
-            }
+        const usrId =new mongoose.Types.ObjectId( user._id)
+        // Check if the current user is authorized to update the profile
+        if (role === "Mentor" && !profile.userId.equals(usrId)) {
+            throw new Error('Unauthorized to update this profile');
         }
 
-        if(updatedData.education !== undefined) {
-            profile.education = updatedData.education;
+        // Update profile fields from updatedData
+        if (updatedData) {
+            Object.assign(profile, updatedData);
         }
 
-        if (updatedData.headline !== undefined) {
-            profile.headline = updatedData.headline;
+        // Update role
+        profile.role = role;
+
+        // Update social media separately if provided
+        if (updatedData.social_media) {
+            Object.assign(profile.social_media, updatedData.social_media);
         }
-        if(updatedData.available !== undefined) {
-            profile.available = updatedData.available;
-        }
-        if(updatedData.city !== undefined){
-            profile.city = updatedData.city;
-        }
-        if(updatedData.province !== undefined){
-            profile.province = updatedData.province;
-        }
-        if(updatedData.zipcode !== undefined){
-            
-            profile.zipcode = updatedData.zipcode;
-        }
-        if(updatedData.phoneNumber !== undefined){
-            profile.phoneNumber = updatedData.phoneNumber;
-        }
-        if(updatedData.userName !== undefined){
-            profile.userName = updatedData.userName;
-        }
-        if(updatedData.email !== undefined){
-            profile.email = updatedData.email;
-        }
-            profile.role = role;
-            await profile.save();
-        
+
+        // Save the profile
+        await profile.save();
+
+        // Handle files
         if (files) {
-            const profilePic = files['profilepic'] ? files['profilepic'][0] : null;
-            const introVideo = files['introvideo'] ? files['introvideo'][0] : null;
-            if (profilePic) {
+            if (files.profilepic && files.profilepic[0]) {
                 if (profile.profilePicture) {
                     file_del(profile.profilePicture);
                 }
-                profile.profilePicture = profilePic.location;
+                profile.profilePicture = files.profilepic[0].location;
             }
-            if (introVideo) {
+
+            if (files.introvideo && files.introvideo[0]) {
                 if (profile.introVideo) {
                     file_del(profile.introVideo);
                 }
-                profile.introVideo = introVideo.location;
+                profile.introVideo = files.introvideo[0].location;
             }
+
+            // Save the profile after file handling
             await profile.save();
         }
+
         return profile;
     } catch (error) {
         throw error;
@@ -210,19 +162,21 @@ const updateProfileMentor = async (profileId, role, updatedData, files) => {
 
 const createMenteeProfile = async (req) => {
     try {
-
         // Extract uploaded files
         if (req.payload.role !== "Mentee" && req.payload.role !== "Admin") {
-            throw new Error('Unauthorized')
+            throw new Error('Unauthorized');
         }
-        const user = await getUserByID(req.payload.sub)
-        if(!user){
-            throw new Error('User not found')
+
+        const user = await getUserByID(req.payload.sub);
+        if (req.payload.role === "Mentee" && !user) {
+            throw new Error('User not found');
         }
+
         const alreadyCreated = await Profile.findOne({ userId: user._id });
         if (alreadyCreated) {
             throw new Error('Profile already created');
         }
+
         const profilePic = req.files['profilepic'] ? req.files['profilepic'][0] : null;
         const profilePicLocation = profilePic ? profilePic.location : null;
 
@@ -238,6 +192,7 @@ const createMenteeProfile = async (req) => {
         if (existingUserName) {
             throw new Error('Profile with this userName already exists.');
         }
+
         // Create a Profile object for mentee
         const profile = new Profile({
             email: req.body.email,
@@ -249,8 +204,9 @@ const createMenteeProfile = async (req) => {
             city: req.body.city,
             languages: req.body.languages,
             featured: req.body.featured || false,
-            userId: req.payload._id,
+            userId: req.payload.sub, // Changed to req.payload.sub
         });
+
         await profile.save();
 
         return profile;
@@ -259,14 +215,20 @@ const createMenteeProfile = async (req) => {
     }
 };
 
-const updateMenteeProfile = async (profileId, role, updatedData, files) => {
+
+const updateMenteeProfile = async (profileId, role, updatedData, files,user) => {
     try {
         if (role !== 'Mentee' && role !== 'Admin') {
             throw new Error('Unauthorized');
         }
+
         let profile = await Profile.findById(profileId);
         if (!profile) {
             throw new Error('Profile not found')
+        }
+        const usr = new mongoose.Types.ObjectId(user._id);
+        if (role === "Mentee" && !profile.userId.equals(usr)) {
+            throw new Error('Unauthorized to update this profile');
         }
         if (updatedData) {
             Object.assign(profile, updatedData);
@@ -382,7 +344,7 @@ const getAllProfiles = async (filters, options, searchKeyword) => {
     }
 };
 
-const deleteProfileByIdMentor = async (id, role) => {
+const deleteProfileByIdMentor = async (id, role, userId) => {
     try {
         if (role !== 'Mentor' && role !== 'Admin') {
             throw new Error('Unauthorized');
@@ -392,9 +354,18 @@ const deleteProfileByIdMentor = async (id, role) => {
         if (!profile) {
             throw new Error('Profile not found')
         }
-        
-        if(profile.role !== 'Mentor' && profile.role !== 'Admin' ){
+
+        if (profile.role !== 'Mentor' && profile.role !== 'Admin') {
             throw new Error('Unauthorized');
+        }
+
+        const usr = new mongoose.Types.ObjectId(userId);
+
+        // console.log("Profile.userId:", profile.userId);
+        // console.log("usr:", usr);
+
+        if (profile.role === "Mentor" && !profile.userId.equals(usr)) {
+            throw new Error('Unauthorized to delete this profile');
         }
 
         const deletedProfile = await Profile.findByIdAndDelete(id);
@@ -412,7 +383,7 @@ const deleteProfileByIdMentor = async (id, role) => {
     }
 }
 
-const deleteProfileByIdMentee = async (id, role) => {
+const deleteProfileByIdMentee = async (id, role, userId) => {
     try {
         if (role !== 'Mentee' && role !== 'Admin') {
             throw new Error('Unauthorized');
@@ -422,11 +393,13 @@ const deleteProfileByIdMentee = async (id, role) => {
         if (!profile) {
             throw new Error('Profile not found')
         }
-
-        if(profile.role !== 'Mentee' && profile.role !== 'Admin' ){
+        if (profile.role !== 'Mentee' && profile.role !== 'Admin') {
             throw new Error('Unauthorized');
         }
-
+        const usr = new mongoose.Types.ObjectId(userId);
+        if(profile.role === "Mentee" && !profile.userId.equals(usr)) {
+            throw new Error('Unauthorized to delete this profile');
+        }
         const deletedProfile = await Profile.findByIdAndDelete(id);
         if (!deletedProfile) {
             throw new Error('Error deleting profile');

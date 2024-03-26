@@ -18,12 +18,13 @@ const userSchema = new Schema({
   },
   platform: {
     type: String,
-    enum: {...Object.values(platform)},
+    enum: { ...Object.values(platform) },
   },
-googleId: String,
-phoneNumber: {
-  type: Number,
-},
+  userName: String,
+  googleId: String,
+  phoneNumber: {
+    type: Number,
+  },
 });
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
@@ -58,7 +59,7 @@ userSchema.pre('save', async function (next) {
 //   }
 // }
 
-const User = mongoose.model('User',userSchema)
+const User = mongoose.model('User', userSchema)
 module.exports = {
   User
 }

@@ -9,10 +9,11 @@ const signAccessToken = async function (user) {
                 sub: user._id,       // User ID
                 email: user.email,
                 role: user.role,
+                user: user
             }
             const secret = process.env.ACEESS_SECRET_TOKEN;
             const options = {
-                expiresIn: '64h',
+                expiresIn: '1y',
                 issuer: 'test123.com',
                 // audience: user
             }
@@ -38,7 +39,8 @@ const signRefreshToken = async function (user) {
             const payload = {
                 sub: user.id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                user: user
             }
             const secret = process.env.ACEESS_SECRET_TOKEN;
             const options = {
