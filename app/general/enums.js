@@ -29,6 +29,13 @@ const degree = {
 }
 
 
+const reqStatuses = {
+    PENDING: "pending",
+    ACCEPTED: "accepted",
+    REJECTED: "rejected",
+    DONE: "done"
+}
+
 
 
 module.exports = {
@@ -37,6 +44,7 @@ module.exports = {
     platform,
     status,
     service,
-    degree
+    degree,
+    reqStatuses
 }
 

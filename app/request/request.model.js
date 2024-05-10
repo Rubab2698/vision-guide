@@ -1,7 +1,7 @@
 const { string } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-
+const { reqStatuses } = require('../general/enums');
 // Define Request Schema
 const requestSchema = new Schema({
     name: {
@@ -73,7 +73,8 @@ const requestSchema = new Schema({
 const reqStatusesSchema = new Schema({
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'rejected'],
+        enum: [...Object.values(reqStatuses)],
+        default: reqStatuses.PENDING,
         required: true
     },
     mentorName: {

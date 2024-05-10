@@ -143,7 +143,7 @@ const {
     try {
       const menteeId = req.params.menteeId;
       const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
-      const reqStatuses = await getAllReqStatusesByMenteeId({ menteeId }, options);
+      const reqStatuses = await getAllReqStatusesByMenteeId(menteeId , options);
       res.status(200).json(reqStatuses);
     } catch (error) {
       next(error);
