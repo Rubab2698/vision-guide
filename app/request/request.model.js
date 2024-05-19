@@ -1,7 +1,7 @@
 const { string } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { reqStatuses } = require('../general/enums');
+const { reqStatuses, languages } = require('../general/enums');
 // Define Request Schema
 const requestSchema = new Schema({
     name: {
@@ -46,7 +46,9 @@ const requestSchema = new Schema({
         type: String
     },
     language: {
-        type: String
+        type: String,
+        enum: [...Object.values(languages)],
+        default: languages.ENGLISH
     },
     requestType:{
         type:String,

@@ -43,7 +43,7 @@ const deleteRequest = async (requestId) => {
 
 const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
     try {
-        const { page, limit  } = options;
+        const { page, limit ,sortBy  } = options;
 
         // Parse page and limit as integers with default values
         const parsedPage = parseInt(page) || 1;
@@ -76,6 +76,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
             }
         });
         // Pagination stages with parsedPage and parsedLimit
+        mainPipeline.push({ $sort:{createdAt:-1} });
         mainPipeline.push({ $skip: (parsedPage - 1) * parsedLimit });
         mainPipeline.push({ $limit: parsedLimit });
 
@@ -84,7 +85,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
 
         // Pipeline for counting total documents
         const countPipeline = [
-            { $match: matchStage }, // Apply match stage for total count
+            // { $match: matchStage }, // Apply match stage for total count
             { $count: 'totalDocuments' },
         ];
 

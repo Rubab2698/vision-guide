@@ -1,5 +1,5 @@
 const Joi = require('joi');
-
+const { languages } = require('../general/enums');
 // Joi schema for creating a request
 const createRequestSchema = Joi.object({
   body: Joi.object({
@@ -9,7 +9,7 @@ const createRequestSchema = Joi.object({
     mentorId: Joi.string().required(),
     menteeId: Joi.string().required(),
     date: Joi.date().required(),
-    requestType: Joi.string().valid('oneToOne', 'package'),
+    requestType: Joi.string().valid('oneToOne', 'package').required(),
     package: Joi.object({
       noOfdays: Joi.number().required(),
       amount: Joi.number().required(),
@@ -18,8 +18,19 @@ const createRequestSchema = Joi.object({
     email: Joi.string(),
     topic: Joi.string(),
     description: Joi.string().max(500).min(10),
-    language: Joi.string(),
+    language: Joi.string().valid(...Object.values(languages)).default(languages.ENGLISH),
     name: Joi.string(),
+  })
+});
+
+const getAllRequests = Joi.object({
+  query: Joi.object({
+    sortBy: Joi.string(),
+    page: Joi.number().integer().min(1).required(),
+    limit: Joi.number().integer().min(1).required(),
+    menteeId: Joi.string(),
+    mentorId: Joi.string(),
+    requestType: Joi.string().valid('oneToOne', 'package')
   })
 });
 
@@ -39,6 +50,7 @@ const getRequestByIdSchema = Joi.object({
 
 // Joi schema for getting all requests by mentor ID
 const getAllRequestsByMentorIdSchema = Joi.object({
+
   params: Joi.object({
     mentorId: Joi.string().required()   
   }),
@@ -113,5 +125,6 @@ module.exports = {
   createReqStatusSchema,
   deleteReqStatusSchema,
   getReqStatusByIdSchema,
-  getAllReqStatusesByMenteeIdSchema
+  getAllReqStatusesByMenteeIdSchema,
+  getAllRequests
 };

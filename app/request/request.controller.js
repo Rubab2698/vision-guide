@@ -63,7 +63,7 @@ const {
   
   const getAllRequestsByMentor = async (req, res, next) => {
     try {
-      const mentorId = pick(req.params, ["mentorId"]);
+      const mentorId = req.params.mentorId;
       const options = pick(req.query, ["sortBy", "page", "limit"]);
       const requests = await getAllRequestsByMentorId( mentorId , options);
       res.status(200).json(requests);

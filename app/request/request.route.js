@@ -12,7 +12,8 @@ const {
   createReqStatusSchema,
   deleteReqStatusSchema,
   getReqStatusByIdSchema,
-  getAllReqStatusesByMenteeIdSchema
+  getAllReqStatusesByMenteeIdSchema,
+  getAllRequests
 
 } = require('./request.joi.schema');
 
@@ -30,6 +31,7 @@ router.get(
   '/',
   verifyAccessToken,
   authorizationMiddleware('Mentee', 'Admin', 'Mentor'),
+  validateSchema(getAllRequests),
   controller.getAllRequestsWithFilters
 );
 
