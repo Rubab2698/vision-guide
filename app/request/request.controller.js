@@ -11,7 +11,8 @@ const {
     getReqStatusByReqId,
     deleteReqStatus,
     getAllReqStatusesByMenteeId,
-    getAllReqStatusesByMentorId
+    getAllReqStatusesByMentorId,
+    updateReqStatusById
   } = require('./request.service');
   const pick = require('../general/pick')
   
@@ -162,7 +163,19 @@ const {
     }
   }
      
-  
+  const updateReqStatus = async (req, res, next) => {
+    try {
+      const reqStatusId = req.params.reqStatusId;
+      const reqStatusData = req.body;
+      const reqStatus = await updateReqStatusById(reqStatusId, reqStatusData);
+      res.status(200).json({
+        message: "Request status updated successfully",
+        reqStatus: reqStatus
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
   module.exports = {
     postCreateRequest,
     getAllRequestsWithFilters,
@@ -176,6 +189,7 @@ const {
     getReqStatusByRequestId,
     deleteSingleReqStatus,
     getAllReqStatusesByMentee,
-    getAllReqStatusesByMentor
+    getAllReqStatusesByMentor,
+    updateReqStatus
   };
   

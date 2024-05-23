@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const meet = require('../general/meet');
 const moment = require('moment');
 const { ObjectId } = require('mongodb');
-const {getProfileByUserId} = require('../userProfile/profile.service');
+const { getProfileByUserId } = require('../userProfile/profile.service');
 const { object } = require('joi');
 
 //request
@@ -193,17 +193,17 @@ const getAllRequestsByMenteeId = async (filters, options) => {
 //request status
 
 
-const createReqStatus = async (reqStatusData,user) => {
+const createReqStatus = async (reqStatusData, user) => {
     try {
 
         const isAuthMentor = await getProfileByUserId(user._id)
-        if(!isAuthMentor){
-            throw new Error('Unauthorized Mentor');    
+        if (!isAuthMentor) {
+            throw new Error('Unauthorized Mentor');
         }
         const isAlready = await getReqStatusByReqId(reqStatusData.reqId)
-         if(isAlready){
-             throw new Error('Request Status Already Exists');
-         }
+        if (isAlready) {
+            throw new Error('Request Status Already Exists');
+        }
         const req = await getRequestById(reqStatusData.reqId);
         const data = {
 
@@ -211,13 +211,13 @@ const createReqStatus = async (reqStatusData,user) => {
             requestId: reqStatusData.reqId
         }
         const reqStatus = await ReqStatuses.create(data);
-        if(!reqStatus){
+        if (!reqStatus) {
             throw new Error('Error creating request status');
         }
         if (reqStatus.status == "accepted") {
             // Format startTime and endTime if not in proper format
-            const formattedStartTime = moment(req.startTime,'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-            const formattedEndTime = moment(req.endTime,'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+            const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+            const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
             const mentorName = req.mentorId.userName.firstName
             const menteeName = req.menteeId.userName.firstName
             const mentorEmail = req.mentorId.email
@@ -234,8 +234,8 @@ const createReqStatus = async (reqStatusData,user) => {
 
             const eventt = await meet(eventData);
             const meetingLink = eventt.meetingLink
-        const request = {}
-            Object.assign(request, { meetingLink }, {req });
+            const request = {}
+            Object.assign(request, { meetingLink }, { req });
             // reqStatus.request = req
             return { reqStatus, request };
             // , eventt: eventt.event, meetingLink: eventt.meetingLink 
@@ -466,6 +466,48 @@ const deleteReqStatus = async (reqStatusId) => {
     }
 }
 
+const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
+    try {
+        const isAuthMentor = await getProfileByUserId(user._id)
+        if (!isAuthMentor) {
+            throw new Error('Unauthorized Mentor');
+        }
+        const updatedReqStatus = await ReqStatuses.findByIdAndUpdate(reqStatusId, reqStatusData, { new: true });
+        if (!updatedReqStatus) {
+            throw new Error('Request status not found');
+        }
+        if (reqStatusData.status === 'accepted') {
+            // Format startTime and endTime if not in proper format
+            const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+            const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+            const mentorName = req.mentorId.userName.firstName
+            const menteeName = req.menteeId.userName.firstName
+            const mentorEmail = req.mentorId.email
+            const menteeEmail = req.menteeId.email
+            const eventData = {
+                summary: 'Mentorship Meeting',
+                startTime: formattedStartTime,
+                endTime: formattedEndTime,
+                attendees: [
+                    { email: mentorEmail, displayName: mentorName },
+                    { email: menteeEmail, displayName: menteeName },
+                ],
+            };
+
+            const eventt = await meet(eventData);
+            const meetingLink = eventt.meetingLink
+            const request = {}
+            Object.assign(request, { meetingLink }, { req });
+            return { updatedReqStatus, request };
+        }
+        if (updatedReqStatus.status == "rejected" || updatedReqStatus.status == "pending") {
+            return updatedReqStatus;
+        }
+    } catch (error) {
+        throw new Error(`Error updating request status: ${error.message}`);
+    }
+}
+
 module.exports = {
     createRequest,
     getAllRequests,
@@ -479,5 +521,6 @@ module.exports = {
     getAllRequestsByMenteeId,
     getAllReqStatusesByMenteeId,
     getAllReqStatusesByMentorId,
-    getReqStatusByReqId
+    getReqStatusByReqId,
+    updateReqStatusById
 };

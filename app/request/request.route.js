@@ -158,4 +158,13 @@ router.get(
     validateSchema(getAllReqStatusesByMenteeIdSchema),
     controller.getAllReqStatusesByMentee
   );
+
+
+  router.patch(
+    '/status/:reqStatusId',
+    verifyAccessToken,
+    authorizationMiddleware(['Admin', 'Mentor']),
+    validateSchema(createReqStatusSchema),
+    controller.updateReqStatus
+  );
   module.exports = router;
