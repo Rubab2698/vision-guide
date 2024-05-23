@@ -10,7 +10,8 @@ const {
     getReqStatusById,
     getReqStatusByReqId,
     deleteReqStatus,
-    getAllReqStatusesByMenteeId
+    getAllReqStatusesByMenteeId,
+    getAllReqStatusesByMentorId
   } = require('./request.service');
   const pick = require('../general/pick')
   
@@ -86,7 +87,7 @@ const {
   const postCreateReqStatus = async (req, res, next) => {
     try {
       const reqStatusData = req.body;
-      const reqStatus = await createReqStatus(reqStatusData);
+      const reqStatus = await createReqStatus(reqStatusData,req.payload.user);
       res.status(201).json({
         message: "Request status created successfully",
         reqStatus: reqStatus
@@ -118,7 +119,7 @@ const {
   
   const getReqStatusByRequestId = async (req, res, next) => {
     try {
-      const reqId = req.params.requestId;
+      const reqId = req.params.reqId;
       const reqStatus = await getReqStatusByReqId(reqId);
       res.status(200).json(reqStatus);
     } catch (error) {
@@ -150,6 +151,17 @@ const {
     }
     
   }
+  const getAllReqStatusesByMentor = async (req, res, next) => {
+    try {
+      const mentorId = req.params.mentorId;
+      const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
+      const reqStatuses = await getAllReqStatusesByMentorId(mentorId , options);
+      res.status(200).json(reqStatuses);
+    } catch (error) {
+      next(error);
+    }
+  }
+     
   
   module.exports = {
     postCreateRequest,
@@ -163,6 +175,7 @@ const {
     getSingleReqStatusById,
     getReqStatusByRequestId,
     deleteSingleReqStatus,
-    getAllReqStatusesByMentee
+    getAllReqStatusesByMentee,
+    getAllReqStatusesByMentor
   };
   

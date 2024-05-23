@@ -77,17 +77,8 @@ const getAllRequestsByMenteeIdSchema = Joi.object({
 const createReqStatusSchema = Joi.object({
   body: Joi.object({
     status: Joi.string().valid('pending', 'accepted', 'rejected').required(),
-    mentorEmail: Joi.string().required(),
-    menteeEmail: Joi.string().required(),
-    requestId: Joi.string().required(),
-    startTime: Joi.string().required(),
-    endTime: Joi.string().required(),
-    day: Joi.string().required(),
-    menteeName: Joi.string().required(),
-    mentorName: Joi.string().required(),
+    reqId: Joi.string().required(),
     message: Joi.string(),
-    mentorId: Joi.string().required(),
-    menteeId: Joi.string().required(),
   })
 });
 
@@ -109,6 +100,18 @@ const getAllReqStatusesByMenteeIdSchema = Joi.object({
     status: Joi.string().valid('pending', 'accepted', 'rejected')
   })
 })
+
+const getAllReqStatusesByMentorIdSchema = Joi.object({
+  params: Joi.object({
+    mentorId: Joi.string().required()   
+  }),
+  query: Joi.object({
+    sortBy: Joi.string(),
+    page: Joi.number().integer().min(1).required(),
+    limit: Joi.number().integer().min(1).required(),
+    status: Joi.string().valid('pending', 'accepted', 'rejected')
+  })
+})
 // Joi schema for getting a single request status by ID
 const getReqStatusByIdSchema = Joi.object({
   params: Joi.object({
@@ -116,6 +119,12 @@ const getReqStatusByIdSchema = Joi.object({
   })
 });
 
+
+const getReqStatusByRequestId = Joi.object({
+  params: Joi.object({
+    reqId: Joi.string().alphanum().min(24).max(24).required()
+  })
+})
 module.exports = {
   createRequestSchema,
   deleteRequestSchema,
@@ -126,5 +135,7 @@ module.exports = {
   deleteReqStatusSchema,
   getReqStatusByIdSchema,
   getAllReqStatusesByMenteeIdSchema,
-  getAllRequests
+  getAllReqStatusesByMentorIdSchema,
+  getAllRequests,
+  getReqStatusByRequestId
 };

@@ -414,7 +414,17 @@ const deleteProfileByIdMentee = async (id, role, userId) => {
         throw error;
     }
 }
-
+const getProfileByUserId = async (userId) => {
+    try {
+        const profile = await Profile.findOne({ userId:userId });
+        if (!profile) {
+            throw new Error('Profile not found');
+        }
+        return profile;
+    } catch (error) {
+        throw error;
+    }
+}
 
 module.exports = {
     createProfileMentor,
@@ -424,5 +434,6 @@ module.exports = {
     getProfileById,
     getAllProfiles,
     deleteProfileByIdMentor,
-    deleteProfileByIdMentee
+    deleteProfileByIdMentee,
+    getProfileByUserId
 };

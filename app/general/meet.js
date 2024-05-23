@@ -6,13 +6,13 @@ const axios = require('axios');
 
 // Generate a UUID
 const uniqueId = uuidv4();
-console.log('Unique ID:', uniqueId);
+// console.log('Unique ID:', uniqueId);
 
 // Google Calendar API configuration
 const CLIENT_ID = "749622528930-0l81q4glvi55pt7ptnav9ceharne7h6l.apps.googleusercontent.com";
 const CLIENT_SECRET = "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";
-const AUTH_REFRESH_TOKEN = "1//041UFAzS85JgDCgYIARAAGAQSNwF-L9IrvyPhGLBrnkhbbnDqWM7Vco6NVGzsPNgJ_fizcFV4hP6xS8pt51P5LhW3jg229DofOCc";
-
+// const AUTH_REFRESH_TOKEN = "1//041UFAzS85JgDCgYIARAAGAQSNwF-L9IrvyPhGLBrnkhbbnDqWM7Vco6NVGzsPNgJ_fizcFV4hP6xS8pt51P5LhW3jg229DofOCc";
+const AUTH_REFRESH_TOKEN ="1//04EL1SrqaMLDsCgYIARAAGAQSNwF-L9IrEK5NHkCExSCT-064f6969Bu0e25n66c52Glx_BVFw8xSRPbWcqFd3Ey5B23PGYRHAUc"
 // Get client's timezone
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
