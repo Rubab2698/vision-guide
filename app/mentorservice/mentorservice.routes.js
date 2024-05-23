@@ -24,7 +24,7 @@ router.patch(
 );
 router.get('/:serviceId', 
 verifyAccessToken, 
-authorizationMiddleware(['Mentor', 'Admin']),
+authorizationMiddleware(['Mentor', 'Admin','Mentee']),
 validateSchema(idSchema),
  controller.getBasicServiceById);
 // Delete a basic service by ID
