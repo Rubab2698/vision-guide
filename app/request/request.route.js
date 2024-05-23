@@ -12,7 +12,10 @@ const {
   createReqStatusSchema,
   deleteReqStatusSchema,
   getReqStatusByIdSchema,
-  getAllReqStatusesByMenteeIdSchema
+  getAllReqStatusesByMenteeIdSchema,
+  getAllReqStatusesByMentorIdSchema,
+  getAllRequests,
+  getReqStatusByRequestId
 
 } = require('./request.joi.schema');
 
@@ -30,6 +33,7 @@ router.get(
   '/',
   verifyAccessToken,
   authorizationMiddleware('Mentee', 'Admin', 'Mentor'),
+  validateSchema(getAllRequests),
   controller.getAllRequestsWithFilters
 );
 
@@ -67,6 +71,31 @@ router.get(
   controller.getAllRequestsByMentee
 );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Create a new request status
 router.post(
   '/status',
@@ -103,6 +132,25 @@ router.get(
     controller.deleteSingleReqStatus
   );
   
+  // Get all request statuses by request ID
+  router.get(
+    '/status-reqId/:reqId',
+    verifyAccessToken,
+    authorizationMiddleware(['Admin', 'Mentor','Mentee']),
+    validateSchema(getReqStatusByRequestId),
+    controller.getReqStatusByRequestId
+  );
+  
+  // // Get all request statuses by mentor ID
+  router.get(
+    '/status-mentor/:mentorId',
+    verifyAccessToken,
+    authorizationMiddleware(['Admin', 'Mentor']),
+    validateSchema(getAllReqStatusesByMentorIdSchema),
+    controller.getAllReqStatusesByMentor
+  );
+  
+  // Get all request statuses by mentee ID
   router.get(
     '/status/mentee/:menteeId',
     verifyAccessToken,

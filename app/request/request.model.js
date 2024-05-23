@@ -1,7 +1,7 @@
 const { string } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { reqStatuses } = require('../general/enums');
+const { reqStatuses, languages } = require('../general/enums');
 // Define Request Schema
 const requestSchema = new Schema({
     name: {
@@ -46,7 +46,9 @@ const requestSchema = new Schema({
         type: String
     },
     language: {
-        type: String
+        type: String,
+        enum: [...Object.values(languages)],
+        default: languages.ENGLISH
     },
     requestType:{
         type:String,
@@ -77,36 +79,13 @@ const reqStatusesSchema = new Schema({
         default: reqStatuses.PENDING,
         required: true
     },
-    mentorName: {
-        type: String,
-    },
-    menteeName: {
-        type: String,
-    },
-    mentorEmail: {
-        type: String,
-        required: true
-    },
-    menteeEmail: {
-        type: String,
-        required: true
-    },
+
     requestId: {
         type: Schema.Types.ObjectId,
         ref: 'Request', // Reference to the Request model
         required: true
     },
     message: String,
-    mentorId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
-        required: true
-    },
-    menteeId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
-        required: true
-    },
 },{
     timestamps: true,
     autopopulate: true

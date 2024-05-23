@@ -36,7 +36,11 @@ const reqStatuses = {
     DONE: "done"
 }
 
-
+const languages = {
+    ENGLISH: "english",
+    HINDI: "hindi",
+    URDU: "urdu",
+}
 
 module.exports = {
     userTypes,
@@ -45,6 +49,7 @@ module.exports = {
     status,
     service,
     degree,
-    reqStatuses
+    reqStatuses,
+    languages
 }
 
