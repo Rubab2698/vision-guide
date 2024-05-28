@@ -43,7 +43,7 @@ router.get(
 );
 
 // Get all mentor profiles
-router.get('/', validateSchema(getAllProfilesSchema), controller.getAllProfiles);
+router.get('/', validateSchema(getAllProfilesSchema), controller.getAllProfils);
 
 // Delete a  profile by ID
 router.delete(
