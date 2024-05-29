@@ -41,7 +41,7 @@ const getProfileById = async (req, res) => {
   }
 };
 
-const getAllProfiles = async (req, res) => {
+const getAllProfils = async (req, res) => {
   try {
     const filters = pick(req.query, ["domains", "languages", "featured", "role", "available"]);
     const options = pick(req.query, ["sortBy", "page", "limit"]);
@@ -76,7 +76,7 @@ updateProfileMentee,
 createProfilerMentor,
 updateProfileMentor,
 getProfileById,
-getAllProfiles,
+getAllProfils,
 deleteProfileByIdMentor,
 deleteProfileByIdMentee
 };
