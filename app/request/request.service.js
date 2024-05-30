@@ -201,7 +201,7 @@ const createReqStatus = async (reqStatusData,user) => {
             throw new Error('Unauthorized Mentor');    
         }
         const isAlready = await getReqStatusByReqId(reqStatusData.reqId)
-         if(isAlready){
+         if(isAlready.length>0 ){
              throw new Error('Request Status Already Exists');
          }
         const req = await getRequestById(reqStatusData.reqId);

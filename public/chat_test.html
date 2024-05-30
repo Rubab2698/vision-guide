@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        #chatContainer {
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        #messages {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chatContainer">
+        <div>
+            <input type="text" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+        <div id="chat" style="display:none;">
+            <div>
+                <input type="text" id="mentorId" placeholder="Mentor ID">
+                <input type="text" id="menteeId" placeholder="Mentee ID">
+                <button onclick="joinRoom()">Join Room</button>
+            </div>
+            <div id="messages"></div>
+            <div>
+                <input type="text" id="message" placeholder="Message">
+                <button onclick="sendMessage()">Send Message</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            fetch('/vision-guide/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.token) {
+                        // Store the token in local storage
+                        localStorage.setItem('token', data.token);
+                        // Show the chat interface
+                        document.getElementById('chat').style.display = 'block';
+                        // Establish socket connection
+                        connectSocket();
+                    } else {
+                        alert('Login failed');
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+
+        function connectSocket() {
+            const token = localStorage.getItem('token');
+            // Establish socket connection with token authentication
+            socket = io('http://localhost:3000', {
+                auth: { token }
+            });
+            // Handle socket events...
+            socket.on('receiveMessage', ({ message, senderId }) => {
+                const messagesDiv = document.getElementById('messages');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                newMessage.innerText = `Sender ${senderId}: ${message}`;
+                messagesDiv.appendChild(newMessage);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+            });
+        }
+
+        function joinRoom() {
+            const mentorId = document.getElementById('mentorId').value;
+            const menteeId = document.getElementById('menteeId').value;
+            socket.emit('joinRoom', { mentorId, menteeId });
+        }
+
+        function sendMessage() {
+            const mentorId = document.getElementById('mentorId').value;
+            const menteeId = document.getElementById('menteeId').value;
+            const message = document.getElementById('message').value;
+            const senderId = 'user'; // You can use a proper senderId here
+            socket.emit('sendMessage', { mentorId, menteeId, message, senderId });
+        }
+    </script>
+</body>
+
+</html>

@@ -42,6 +42,11 @@ const languages = {
     URDU: "urdu",
 }
 
+
+const chatType = {
+    TEXT: "text",
+    MULTIMEDIA: "multimedia"
+}
 module.exports = {
     userTypes,
     allowedDomainExtensions,
@@ -50,6 +55,7 @@ module.exports = {
     service,
     degree,
     reqStatuses,
-    languages
+    languages,
+    chatType
 }
 
