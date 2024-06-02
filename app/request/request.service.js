@@ -508,6 +508,43 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
     }
 }
 
+const chatStatus = async (body, user) => {
+    const req = await getRequestById(body.reqId);
+    if (!req) throw new Error('Request not found');
+
+    const isUser = await Profile.findOne({ userId: user._id });
+    if (isUser._id.toString() !== req.mentorId.toString()) {
+        throw new Error("Unauthorized to create chatStatus");
+    }
+
+    if (body.status === "accept") {
+        const mentorId = req.mentorId;
+        const menteeId = req.menteeId;
+        await ReqStatuses.create(body);
+        
+        // Notify both mentor and mentee about the acceptance
+        const io = req.app.get('io');
+        io.to(mentorId).emit('chatAccepted', { mentorId, menteeId });
+        io.to(menteeId).emit('chatAccepted', { mentorId, menteeId });
+
+        // Add them to a common room for chatting
+        io.to(mentorId).join(`${mentorId}-${menteeId}`);
+        io.to(menteeId).join(`${mentorId}-${menteeId}`);
+    } else if (body.status === "reject" || body.status === "pending") {
+        const reqStatus = await ReqStatuses.create(body);
+        return reqStatus;
+    }
+};
+
+
+const chatReq = async (body, user) => {
+    const req = await Request.create(body);
+    if (req) {
+        return req;
+    } else {
+        throw new Error(`Error request for chat: ${error.message}`);
+    }
+};
 module.exports = {
     createRequest,
     getAllRequests,
@@ -522,5 +559,7 @@ module.exports = {
     getAllReqStatusesByMenteeId,
     getAllReqStatusesByMentorId,
     getReqStatusByReqId,
-    updateReqStatusById
+    updateReqStatusById,
+    chatStatus,
+    chatReq
 };

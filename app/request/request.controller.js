@@ -12,7 +12,9 @@ const {
     deleteReqStatus,
     getAllReqStatusesByMenteeId,
     getAllReqStatusesByMentorId,
-    updateReqStatusById
+    updateReqStatusById,
+    chatReq,
+    chatStatus
   } = require('./request.service');
   const pick = require('../general/pick')
   
@@ -176,6 +178,25 @@ const {
       next(error);
     }
   }
+
+  const createChatReq = async(req,res,next)=>{
+    try{
+       const chatReq = await chatReq(req.body,req.payload.user)
+      res.status(200).json(reqStatuses);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  const chatReqStatus = async(req,res,next)=>{
+    try{
+       const chatReq = await chatStatus(req.body,req.payload.user)
+      res.status(200).json(reqStatuses);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   module.exports = {
     postCreateRequest,
     getAllRequestsWithFilters,
@@ -190,6 +211,9 @@ const {
     deleteSingleReqStatus,
     getAllReqStatusesByMentee,
     getAllReqStatusesByMentor,
-    updateReqStatus
+    updateReqStatus,
+    createChatReq,
+    chatReqStatus
+
   };
   

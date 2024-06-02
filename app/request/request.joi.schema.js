@@ -125,6 +125,17 @@ const getReqStatusByRequestId = Joi.object({
     reqId: Joi.string().alphanum().min(24).max(24).required()
   })
 })
+
+const createChatReq = Joi.object({
+  body: Joi.object({
+    requestType: Joi.string().valid('chat').required(),
+    mentorId: Joi.string().required(),
+    menteeId: Joi.string().required(), 
+    topic: Joi.string(),
+    description: Joi.string().max(500).min(10),
+    language: Joi.string().valid(...Object.values(languages)).default(languages.ENGLISH),
+  })
+})
 module.exports = {
   createRequestSchema,
   deleteRequestSchema,
@@ -137,5 +148,6 @@ module.exports = {
   getAllReqStatusesByMenteeIdSchema,
   getAllReqStatusesByMentorIdSchema,
   getAllRequests,
-  getReqStatusByRequestId
+  getReqStatusByRequestId,
+  createChatReq
 };
