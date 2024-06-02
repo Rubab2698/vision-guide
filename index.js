@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const createError = require('http-errors');
 const path = require('path');
-const router = require('./routes'); // Import the routes
+const router = require('../vision-guide/app/route'); // Import the routes
 require('dotenv').config();
 const { initializeSocket } = require('./socket'); // Import the socket initialization function
 
@@ -29,9 +29,6 @@ mongoose.connection.on('connected', () => { console.log("mongodb connected"); })
 mongoose.connection.on('error', (err) => { console.log(err.msg); });
 mongoose.connection.on('disconnected', () => { console.log("Mongoose connection is disconnected"); });
 
-// Set EJS as the view engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 
 // Routes
 app.use('/vision-guide', router);
