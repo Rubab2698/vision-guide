@@ -52,7 +52,7 @@ const requestSchema = new Schema({
     },
     requestType:{
         type:String,
-        enum:['oneToOne', 'package'],
+        enum:['oneToOne', 'package','chat'],
         default: 'oneToOne'
     },
     package:{
@@ -91,8 +91,24 @@ const reqStatusesSchema = new Schema({
     autopopulate: true
 });
 
+
+const ChatSchema = new Schema({
+    sender_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
+        required: true
+    },
+    reciver_id :{
+        type: Schema.Types.ObjectId,
+        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
+        required: true
+    } ,
+    message: String
+})
 // Create models
+
 const Request = mongoose.model('Request', requestSchema);
 const ReqStatuses = mongoose.model('ReqStatuses', reqStatusesSchema);
+const Chat = mongoose.model('Chat',ChatSchema)
 
-module.exports = { Request, ReqStatuses };
+module.exports = { Request, ReqStatuses ,Chat};
