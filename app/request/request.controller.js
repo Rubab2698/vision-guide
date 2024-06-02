@@ -16,6 +16,7 @@ const {
     chatReq,
     chatStatus
   } = require('./request.service');
+  const {notifyConnectionStatus} = require("../../socket")
   const pick = require('../general/pick')
   
   const postCreateRequest = async (req, res, next) => {
@@ -191,6 +192,9 @@ const {
   const chatReqStatus = async(req,res,next)=>{
     try{
        const chatReq = await chatStatus(req.body,req.payload.user)
+       if (req.body.status === 'accepted') {
+        notifyConnectionStatus(result.mentorId, result.menteeId); // Notify WebSocket server
+    }
       res.status(200).json(reqStatuses);
     } catch (error) {
       next(error);
