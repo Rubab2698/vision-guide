@@ -1,4 +1,4 @@
-const { Request, ReqStatuses } = require('./request.model'); // Importing Mongoose models
+const { Request, ReqStatuses, Chat } = require('./request.model'); // Importing Mongoose models
 const mongoose = require('mongoose');
 const meet = require('../general/meet');
 const moment = require('moment');
@@ -532,6 +532,19 @@ const chatReq = async (body, user) => {
         throw new Error(`Error request for chat: ${error.message}`);
     }
 };
+
+
+
+const chatSave = async (body , user )=>{
+    const chat = await Chat.create(...body)
+    if(chat){
+        return chat
+    }
+    else {
+    throw new Error('Chat not created') 
+}
+
+}
 module.exports = {
     createRequest,
     getAllRequests,
@@ -548,5 +561,6 @@ module.exports = {
     getReqStatusByReqId,
     updateReqStatusById,
     chatStatus,
-    chatReq
+    chatReq,
+    chatSave
 };

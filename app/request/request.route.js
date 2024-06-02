@@ -16,7 +16,8 @@ const {
   getAllReqStatusesByMentorIdSchema,
   getAllRequests,
   getReqStatusByRequestId,
-  createChatReq
+  createChatReq,
+  saveChatScehma
 
 } = require('./request.joi.schema');
 
@@ -91,7 +92,7 @@ router.get(
 
 
 
-router.post('/chat',
+router.post('/chatroom/chat',
 verifyAccessToken,
 authorizationMiddleware(['Mentee', 'Admin']) ,
 validateSchema(createChatReq),
@@ -103,6 +104,12 @@ verifyAccessToken,
 authorizationMiddleware(['Admin','Mentor']) ,
 validateSchema(createReqStatusSchema),
 controller.chatReqStatus
+)
+
+
+router.post('/save-chat',
+  validateSchema(saveChatScehma),
+  controller.saveChat
 )
 
 

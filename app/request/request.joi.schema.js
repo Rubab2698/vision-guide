@@ -136,6 +136,15 @@ const createChatReq = Joi.object({
     language: Joi.string().valid(...Object.values(languages)).default(languages.ENGLISH),
   })
 })
+
+
+const saveChatScehma = Joi.object({
+  body: Joi.object({
+    sender_id: Joi.string().required(),
+    reciever_id: Joi.string().required(),
+    message: Joi.string().required()
+  })
+})
 module.exports = {
   createRequestSchema,
   deleteRequestSchema,
@@ -149,5 +158,6 @@ module.exports = {
   getAllReqStatusesByMentorIdSchema,
   getAllRequests,
   getReqStatusByRequestId,
-  createChatReq
+  createChatReq,
+  saveChatScehma
 };

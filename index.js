@@ -7,7 +7,7 @@ const createError = require('http-errors');
 const path = require('path');
 const router = require('../vision-guide/app/route'); // Import the routes
 require('dotenv').config();
-const { initializeSocket } = require('./socket'); // Import the socket initialization function
+const { initializeSocket } = require('./app/socket'); // Import the socket initialization function
 
 const port = 3000;
 const app = express();
