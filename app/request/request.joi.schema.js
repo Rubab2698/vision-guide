@@ -75,6 +75,9 @@ const getAllRequestsByMenteeIdSchema = Joi.object({
 
 // Joi schema for creating a request status
 const createReqStatusSchema = Joi.object({
+  params: Joi.object({ 
+    reqStatusId: Joi.string().alphanum().min(24).max(24).required()
+   }),
   body: Joi.object({
     status: Joi.string().valid('pending', 'accepted', 'rejected').required(),
     reqId: Joi.string().required(),

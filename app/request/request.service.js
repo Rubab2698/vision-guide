@@ -469,8 +469,9 @@ const deleteReqStatus = async (reqStatusId) => {
 const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
     try {
         const isAuthMentor = await getProfileByUserId(user._id)
-        if (!isAuthMentor) {
-            throw new Error('Unauthorized Mentor');
+        const req = await getRequestById(reqStatusData.reqId);
+        if (toString(req.mentorId._id) !== toString(isAuthMentor._id)) {
+            throw new Error('You are not authorized to perform this action');
         }
         const updatedReqStatus = await ReqStatuses.findByIdAndUpdate(reqStatusId, reqStatusData, { new: true });
         if (!updatedReqStatus) {

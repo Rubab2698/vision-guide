@@ -169,7 +169,7 @@ const {
     try {
       const reqStatusId = req.params.reqStatusId;
       const reqStatusData = req.body;
-      const reqStatus = await updateReqStatusById(reqStatusId, reqStatusData);
+      const reqStatus = await updateReqStatusById(reqStatusId, reqStatusData, req.payload.user);
       res.status(200).json({
         message: "Request status updated successfully",
         reqStatus: reqStatus
