@@ -1,4 +1,3 @@
-const { string } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { reqStatuses, languages } = require('../general/enums');
@@ -9,19 +8,19 @@ const requestSchema = new Schema({
     },
     day: {
         type: String,
-        required: true
+        // required: true
     },
     date: {
         type: Date,
-        required: true
+        // required: true
     },
     startTime: {
         type: String,
-        required: true
+        // required: true
     },
     endTime: {
         type: String,
-        required: true
+        // required: true
     },
     mentorId: {
         type: Schema.Types.ObjectId,
@@ -92,23 +91,10 @@ const reqStatusesSchema = new Schema({
 });
 
 
-const ChatSchema = new Schema({
-    sender_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
-        required: true
-    },
-    reciver_id :{
-        type: Schema.Types.ObjectId,
-        ref: 'Profile', // Reference to the User model assuming mentors and mentees are users
-        required: true
-    } ,
-    message: String
-})
+
 // Create models
 
 const Request = mongoose.model('Request', requestSchema);
 const ReqStatuses = mongoose.model('ReqStatuses', reqStatusesSchema);
-const Chat = mongoose.model('Chat',ChatSchema)
 
-module.exports = { Request, ReqStatuses ,Chat};
+module.exports = { Request, ReqStatuses };
