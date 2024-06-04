@@ -43,7 +43,7 @@ const deleteRequest = async (requestId) => {
     }
 }
 
-const getAllRequestsByMentorId = async (mentorIdFilter, reqType ,options) => {
+const getAllRequestsByMentorId = async (mentorIdFilter, reqType, options) => {
     try {
         const { page, limit, sortBy } = options;
 
@@ -60,11 +60,11 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType ,options) => {
             };
             mainPipeline.push({ $match: matchStage });
         }
-        if(reqType){
+        if (reqType) {
             const matchStage = {
                 requestType: reqType.requestType
             };
-            mainPipeline.push({ $match: matchStage }); 
+            mainPipeline.push({ $match: matchStage });
         }
         mainPipeline.push({ $lookup: { from: 'profiles', localField: 'mentorId', foreignField: '_id', as: 'mentorProfile' } });
         mainPipeline.push({
@@ -120,7 +120,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType ,options) => {
     }
 }
 
-const getAllRequestsByMenteeId = async (filters,reqType, options) => {
+const getAllRequestsByMenteeId = async (filters, reqType, options) => {
     try {
         let { menteeId } = filters;
         const { sortBy, page, limit } = options;
@@ -139,11 +139,11 @@ const getAllRequestsByMenteeId = async (filters,reqType, options) => {
             };
             mainPipeline.push({ $match: matchStage });
         }
-        if(reqType){
+        if (reqType) {
             const matchStage = {
                 requestType: reqType.requestType
             };
-            mainPipeline.push({ $match: matchStage }); 
+            mainPipeline.push({ $match: matchStage });
         }
 
         if (options && options.sortBy) {
@@ -217,7 +217,7 @@ const createReqStatus = async (reqStatusData, user) => {
         }
         const req = await getRequestById(reqStatusData.reqId);
         const data = {
-
+            requestType: req.requestType,
             status: reqStatusData.status,
             requestId: reqStatusData.reqId
         }
@@ -279,7 +279,7 @@ const getReqStatusById = async (reqStatusId) => {
 }
 
 
-const getAllReqStatusesByMenteeId = async (menteeId, options) => {
+const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
     try {
         const { sortBy, page, limit, status } = options;
 
@@ -296,6 +296,12 @@ const getAllReqStatusesByMenteeId = async (menteeId, options) => {
             mainPipeline.push({ $match: matchStage });
         }
 
+        if (reqType) {
+            const matchStage = {
+                requestType: reqType.requestType
+            };
+            mainPipeline.push({ $match: matchStage });
+        }
         if (status) {
             const matchStage = {
                 status: status
@@ -370,7 +376,7 @@ const getAllReqStatusesByMenteeId = async (menteeId, options) => {
     }
 }
 
-const getAllReqStatusesByMentorId = async (mentorId, options) => {
+const getAllReqStatusesByMentorId = async (mentorId,reqType, options) => {
     try {
         const { sortBy, page, limit, status } = options;
 
@@ -386,7 +392,12 @@ const getAllReqStatusesByMentorId = async (mentorId, options) => {
             };
             mainPipeline.push({ $match: matchStage });
         }
-
+        if (reqType) {
+            const matchStage = {
+                requestType: reqType.requestType
+            };
+            mainPipeline.push({ $match: matchStage });
+        }
         if (status) {
             const matchStage = {
                 status: status

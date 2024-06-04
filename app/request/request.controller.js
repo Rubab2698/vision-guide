@@ -148,8 +148,9 @@ const {
   const getAllReqStatusesByMentee = async (req, res, next) => {
     try {
       const menteeId = req.params.menteeId;
+      const type = pick(req.query,['requestType'])
       const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
-      const reqStatuses = await getAllReqStatusesByMenteeId(menteeId , options);
+      const reqStatuses = await getAllReqStatusesByMenteeId(menteeId ,type, options);
       res.status(200).json(reqStatuses);
     } catch (error) {
       next(error);
@@ -159,8 +160,9 @@ const {
   const getAllReqStatusesByMentor = async (req, res, next) => {
     try {
       const mentorId = req.params.mentorId;
+      const type = pick(req.query,['requestType'])
       const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
-      const reqStatuses = await getAllReqStatusesByMentorId(mentorId , options);
+      const reqStatuses = await getAllReqStatusesByMentorId(mentorId , type,options);
       res.status(200).json(reqStatuses);
     } catch (error) {
       next(error);

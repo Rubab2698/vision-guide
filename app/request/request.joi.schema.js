@@ -102,7 +102,9 @@ const getAllReqStatusesByMenteeIdSchema = Joi.object({
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required(),
-    status: Joi.string().valid('pending', 'accepted', 'rejected')
+    status: Joi.string().valid('pending', 'accepted', 'rejected'),
+    requestType: Joi.string().valid('oneToOne', 'package','chat'),
+
   })
 })
 
@@ -114,7 +116,8 @@ const getAllReqStatusesByMentorIdSchema = Joi.object({
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required(),
-    status: Joi.string().valid('pending', 'accepted', 'rejected')
+    status: Joi.string().valid('pending', 'accepted', 'rejected'),
+    requestType: Joi.string().valid('oneToOne', 'package','chat'),
   })
 })
 // Joi schema for getting a single request status by ID

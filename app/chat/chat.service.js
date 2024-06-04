@@ -9,6 +9,7 @@ const chatStatus = async (body, user) => {
     if (isUser._id.toString() !== req.mentorId.toString()) {
         throw new Error("Unauthorized to create chatStatus");
     }
+    body.requestType = req.requestType
     const mentorId = req.mentorId;
     const menteeId = req.menteeId;
     const reqStatus = await ReqStatuses.create(body);

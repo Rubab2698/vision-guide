@@ -77,8 +77,12 @@ const reqStatusesSchema = new Schema({
         enum: [...Object.values(reqStatuses)],
         default: reqStatuses.PENDING,
         required: true
+    },   
+    requestType:{
+        type:String,
+        enum:['oneToOne', 'package','chat'],
+        default: 'oneToOne'
     },
-
     requestId: {
         type: Schema.Types.ObjectId,
         ref: 'Request', // Reference to the Request model
