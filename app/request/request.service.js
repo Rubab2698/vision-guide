@@ -43,7 +43,7 @@ const deleteRequest = async (requestId) => {
     }
 }
 
-const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
+const getAllRequestsByMentorId = async (mentorIdFilter, reqType ,options) => {
     try {
         const { page, limit, sortBy } = options;
 
@@ -60,7 +60,12 @@ const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
             };
             mainPipeline.push({ $match: matchStage });
         }
-
+        if(reqType){
+            const matchStage = {
+                requestType: reqType.requestType
+            };
+            mainPipeline.push({ $match: matchStage }); 
+        }
         mainPipeline.push({ $lookup: { from: 'profiles', localField: 'mentorId', foreignField: '_id', as: 'mentorProfile' } });
         mainPipeline.push({
             $unwind: {
@@ -115,7 +120,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, options) => {
     }
 }
 
-const getAllRequestsByMenteeId = async (filters, options) => {
+const getAllRequestsByMenteeId = async (filters,reqType, options) => {
     try {
         let { menteeId } = filters;
         const { sortBy, page, limit } = options;
@@ -133,6 +138,12 @@ const getAllRequestsByMenteeId = async (filters, options) => {
                 menteeId: new mongoose.Types.ObjectId(menteeId)
             };
             mainPipeline.push({ $match: matchStage });
+        }
+        if(reqType){
+            const matchStage = {
+                requestType: reqType.requestType
+            };
+            mainPipeline.push({ $match: matchStage }); 
         }
 
         if (options && options.sortBy) {

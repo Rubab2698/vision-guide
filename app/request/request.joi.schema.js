@@ -55,6 +55,7 @@ const getAllRequestsByMentorIdSchema = Joi.object({
     mentorId: Joi.string().required()   
   }),
   query: Joi.object({
+    requestType: Joi.string().valid('oneToOne', 'package','chat'),
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required()
@@ -67,6 +68,7 @@ const getAllRequestsByMenteeIdSchema = Joi.object({
     menteeId: Joi.string().required()   
   }),
   query: Joi.object({
+    requestType: Joi.string().valid('oneToOne', 'package','chat'),
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required()

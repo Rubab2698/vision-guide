@@ -68,8 +68,9 @@ const {
   const getAllRequestsByMentor = async (req, res, next) => {
     try {
       const mentorId = req.params.mentorId;
+      const type = pick(req.query,['requestType'])
       const options = pick(req.query, ["sortBy", "page", "limit"]);
-      const requests = await getAllRequestsByMentorId( mentorId , options);
+      const requests = await getAllRequestsByMentorId( mentorId , type , options);
       res.status(200).json(requests);
     } catch (error) {
       next(error);
@@ -79,8 +80,9 @@ const {
   const getAllRequestsByMentee = async (req, res, next) => {
     try {
       const menteeId = req.params.menteeId;
+      const type = pick(req.query,['requestType'])
       const options = pick(req.query, ["sortBy", "page", "limit"]);
-      const requests = await getAllRequestsByMenteeId({ menteeId }, options);
+      const requests = await getAllRequestsByMenteeId({ menteeId }, type, options);
       res.status(200).json(requests);
     } catch (error) {
       next(error);
