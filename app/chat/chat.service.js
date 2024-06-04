@@ -2,7 +2,7 @@ const  Chat  = require('./chat.model'); // Importing Mongoose models
 const { Profile } = require('../userProfile/profile.model');
 const { Request , ReqStatuses} = require('../request/request.model');
 const chatStatus = async (body, user) => {
-    const req = await Request.findById(body.reqId);
+    const req = await Request.findById(body.requestId);
     if (!req) throw new Error('Request not found');
 
     const isUser = await Profile.findOne({ userId: user._id });

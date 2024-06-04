@@ -16,7 +16,7 @@ const createChatReq = Joi.object({
   const createChatStatusSchema = Joi.object({
     body: Joi.object({
       status: Joi.string().valid('pending', 'accepted', 'rejected').required(),
-      reqId: Joi.string().required(),
+      requestId: Joi.string().required(),
       message: Joi.string(),
     })
   });
