@@ -12,9 +12,9 @@ const createChatReq = async(req,res,next)=>{
   const chatReqStatus = async(req,res,next)=>{
     try{
        const chatreqStatus= await chatStatus(req.body,req.payload.user)
-       if (req.body.status === 'accepted') {
-        // notifyConnectionStatus(result.mentorId, result.menteeId); // Notify WebSocket server
-    }
+    //    if (req.body.status === 'accepted') {
+    //     // notifyConnectionStatus(result.mentorId, result.menteeId); // Notify WebSocket server
+    // }
       res.status(200).json(chatreqStatus);
     } catch (error) {
       next(error);

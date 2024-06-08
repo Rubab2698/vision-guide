@@ -162,7 +162,7 @@ const {
       const mentorId = req.params.mentorId;
       const type = pick(req.query,['requestType'])
       const options = pick(req.query, ["sortBy", "page", "limit", "status"]);
-      const reqStatuses = await getAllReqStatusesByMentorId(mentorId , type,options);
+      const reqStatuses = await getAllReqStatusesByMentorId(mentorId ,type,options);
       res.status(200).json(reqStatuses);
     } catch (error) {
       next(error);

@@ -288,10 +288,20 @@ const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
         const parsedLimit = parseInt(limit) || 10;
 
         const mainPipeline = [];
+        
+        const lookup = {
+            from: 'requests',
+            localField: 'requestId',
+            foreignField: '_id',
+            as: 'request'
+        };
+        mainPipeline.push({ $lookup: lookup });
+
+        mainPipeline.push({ $unwind: '$request' });
 
         if (menteeId) {
             const matchStage = {
-                menteeId: new mongoose.Types.ObjectId(menteeId)
+                "request.menteeId": new mongoose.Types.ObjectId(menteeId)
             };
             mainPipeline.push({ $match: matchStage });
         }
@@ -309,7 +319,7 @@ const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
             mainPipeline.push({ $match: matchStage });
         }
 
-        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'mentorId', foreignField: '_id', as: 'mentorProfile' } });
+        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'request.mentorId', foreignField: '_id', as: 'mentorProfile' } });
         mainPipeline.push({
             $unwind: {
                 'path': '$mentorProfile',
@@ -318,7 +328,7 @@ const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
         });
 
         // Populate mentee profiles
-        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'menteeId', foreignField: '_id', as: 'menteeProfile' } });
+        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'request.menteeId', foreignField: '_id', as: 'menteeProfile' } });
         mainPipeline.push({
             $unwind: {
                 'path': '$menteeProfile',
@@ -386,9 +396,19 @@ const getAllReqStatusesByMentorId = async (mentorId,reqType, options) => {
 
         const mainPipeline = [];
 
+        const lookup = {
+            from: 'requests',
+            localField: 'requestId',
+            foreignField: '_id',
+            as: 'request'
+        };
+        mainPipeline.push({ $lookup: lookup });
+
+        mainPipeline.push({ $unwind: '$request' });
+
         if (mentorId) {
             const matchStage = {
-                mentorId: new mongoose.Types.ObjectId(mentorId)
+                "request.mentorId": new mongoose.Types.ObjectId(mentorId)
             };
             mainPipeline.push({ $match: matchStage });
         }
@@ -405,7 +425,7 @@ const getAllReqStatusesByMentorId = async (mentorId,reqType, options) => {
             mainPipeline.push({ $match: matchStage });
         }
 
-        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'mentorId', foreignField: '_id', as: 'mentorProfile' } });
+        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'request.mentorId', foreignField: '_id', as: 'mentorProfile' } });
         mainPipeline.push({
             $unwind: {
                 'path': '$mentorProfile',
@@ -414,7 +434,7 @@ const getAllReqStatusesByMentorId = async (mentorId,reqType, options) => {
         });
 
         // Populate mentee profiles
-        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'menteeId', foreignField: '_id', as: 'menteeProfile' } });
+        mainPipeline.push({ $lookup: { from: 'profiles', localField: 'request.menteeId', foreignField: '_id', as: 'menteeProfile' } });
         mainPipeline.push({
             $unwind: {
                 'path': '$menteeProfile',
