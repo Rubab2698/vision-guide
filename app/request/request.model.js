@@ -3,6 +3,9 @@ const { Schema } = mongoose;
 const { reqStatuses, languages } = require('../general/enums');
 // Define Request Schema
 const requestSchema = new Schema({
+    eventId:{
+        type: String
+    },
     name: {
         type: String
     },

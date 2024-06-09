@@ -13,6 +13,7 @@ const {
     getAllReqStatusesByMenteeId,
     getAllReqStatusesByMentorId,
     updateReqStatusById,
+    cancelMeetingById
 
   } = require('./request.service');
   const {notifyConnectionStatus} = require("../socket")
@@ -185,6 +186,18 @@ const {
     }
   }
 
+  const cancelMeeting = async (req, res, next) => {
+    try {
+      const eventId = req.params.eventId;
+      const reqStatus = await cancelMeetingById(eventId);
+      res.status(200).json({
+        message: "Meeting cancelled successfully",
+        CancleMeet: reqStatus
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   module.exports = {
     postCreateRequest,
@@ -201,7 +214,7 @@ const {
     getAllReqStatusesByMentee,
     getAllReqStatusesByMentor,
     updateReqStatus,
-
+    cancelMeeting
 
   };
   

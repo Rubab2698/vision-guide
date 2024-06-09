@@ -136,6 +136,12 @@ const getReqStatusByRequestId = Joi.object({
   })
 })
 
+const cancelMeeting = Joi.object({
+  params: Joi.object({
+    eventId: Joi.string()
+  })
+})
+
 module.exports = {
   createRequestSchema,
   deleteRequestSchema,
@@ -149,5 +155,5 @@ module.exports = {
   getAllReqStatusesByMentorIdSchema,
   getAllRequests,
   getReqStatusByRequestId,
-
+  cancelMeeting
 };

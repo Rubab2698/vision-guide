@@ -16,6 +16,7 @@ const {
   getAllReqStatusesByMentorIdSchema,
   getAllRequests,
   getReqStatusByRequestId,
+  cancelMeeting
 
 
 } = require('./request.joi.schema');
@@ -82,7 +83,12 @@ router.get(
 
 
 
-
+router.post('/cancelMeeting/:eventId',
+  verifyAccessToken,
+  authorizationMiddleware(['Admin']),
+  validateSchema(cancelMeeting),
+  controller.cancelMeeting
+)
 
 
 

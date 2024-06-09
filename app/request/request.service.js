@@ -1,6 +1,6 @@
 const { Request, ReqStatuses, Chat } = require('./request.model'); // Importing Mongoose models
 const mongoose = require('mongoose');
-const meet = require('../general/meet');
+const {createMeetingEvent, deleteMeetingEvent} = require('../general/meet');
 const moment = require('moment');
 const { ObjectId } = require('mongodb');
 const { getProfileByUserId } = require('../userProfile/profile.service');
@@ -259,8 +259,10 @@ const createReqStatus = async (reqStatusData, user) => {
                 ],
             };
 
-            const eventt = await meet(eventData);
+            const eventt = await createMeetingEvent(eventData);
             const meetingLink = eventt.meetingLink
+             req.eventId = eventt.eventId
+            req.save();
             const request = {}
             Object.assign(request, { meetingLink }, { req });
           
@@ -569,6 +571,15 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
 }
 
 
+
+const cancelMeetingById = async (eventId)=>{
+    const cancelMeet = await deleteMeetingEvent(eventId)
+    if(!cancelMeet){
+        return new Error('Meeting not found')
+    }
+    return cancelMeet
+}
+
 module.exports = {
     createRequest,
     getAllRequests,
@@ -584,5 +595,5 @@ module.exports = {
     getAllReqStatusesByMentorId,
     getReqStatusByReqId,
     updateReqStatusById,
-
+    cancelMeetingById
 };
