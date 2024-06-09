@@ -43,7 +43,7 @@ const deleteRequest = async (requestId) => {
     }
 }
 
-const getAllRequestsByMentorId = async (mentorIdFilter, reqType, options) => {
+const getAllRequestsByMentorId = async (mentorIdFilter, reqType,status,  options) => {
     try {
         const { page, limit, sortBy } = options;
 
@@ -57,6 +57,12 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType, options) => {
         if (mentorIdFilter) {
             const matchStage = {
                 mentorId: new mongoose.Types.ObjectId(mentorIdFilter)
+            };
+            mainPipeline.push({ $match: matchStage });
+        }
+        if(status){
+            const matchStage = {
+                status: status.status
             };
             mainPipeline.push({ $match: matchStage });
         }
@@ -86,6 +92,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType, options) => {
         mainPipeline.push({ $sort: { createdAt: -1 } });
         mainPipeline.push({ $skip: (parsedPage - 1) * parsedLimit });
         mainPipeline.push({ $limit: parsedLimit });
+        console.log(JSON.stringify(mainPipeline));
 
         // Execute the main pipeline
         const results = await Request.aggregate(mainPipeline);
@@ -120,7 +127,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType, options) => {
     }
 }
 
-const getAllRequestsByMenteeId = async (filters, reqType, options) => {
+const getAllRequestsByMenteeId = async (filters, reqType, status , options) => {
     try {
         let { menteeId } = filters;
         const { sortBy, page, limit } = options;
@@ -137,6 +144,13 @@ const getAllRequestsByMenteeId = async (filters, reqType, options) => {
             const matchStage = {
                 menteeId: new mongoose.Types.ObjectId(menteeId)
             };
+            mainPipeline.push({ $match: matchStage });
+        }
+
+        if(status){
+            const matchStage = {
+                status: status.status
+            }
             mainPipeline.push({ $match: matchStage });
         }
         if (reqType) {
@@ -216,6 +230,8 @@ const createReqStatus = async (reqStatusData, user) => {
             throw new Error('Request Status Already Exists');
         }
         const req = await getRequestById(reqStatusData.reqId);
+        req.status = reqStatusData.status
+        await req.save();
         const data = {
             requestType: req.requestType,
             status: reqStatusData.status,
@@ -247,6 +263,7 @@ const createReqStatus = async (reqStatusData, user) => {
             const meetingLink = eventt.meetingLink
             const request = {}
             Object.assign(request, { meetingLink }, { req });
+          
             // reqStatus.request = req
             return { reqStatus, request };
             // , eventt: eventt.event, meetingLink: eventt.meetingLink 

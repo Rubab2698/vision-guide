@@ -3,6 +3,8 @@ const { Profile } = require('../userProfile/profile.model');
 const { Request , ReqStatuses} = require('../request/request.model');
 const chatStatus = async (body, user) => {
     const req = await Request.findById(body.requestId);
+    req.status = body.status
+    await req.save();
     if (!req) throw new Error('Request not found');
 
     const isUser = await Profile.findOne({ userId: user._id });

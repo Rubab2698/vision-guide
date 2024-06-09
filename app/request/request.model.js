@@ -63,7 +63,12 @@ const requestSchema = new Schema({
         },
         time:{
             type:String
-        }
+        },
+    },
+    status:{
+        type:String,
+        enum:['pending', 'accepted', 'rejected'],
+        default: 'pending'
     }
 },{
     timestamps: true,
