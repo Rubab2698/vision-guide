@@ -29,7 +29,6 @@ mongoose.connection.on('connected', () => { console.log("mongodb connected"); })
 mongoose.connection.on('error', (err) => { console.log(err.msg); });
 mongoose.connection.on('disconnected', () => { console.log("Mongoose connection is disconnected"); });
 
-
 // Routes
 app.use('/vision-guide', router);
 
