@@ -42,6 +42,12 @@ const languages = {
     URDU: "urdu",
 }
 
+const reportType = {
+    INAPPROPIATE: "inappropriate",
+    IRRELEVANT: "irrelevant",
+    OTHER: "other"
+}
+
 module.exports = {
     userTypes,
     allowedDomainExtensions,
@@ -50,6 +56,7 @@ module.exports = {
     service,
     degree,
     reqStatuses,
-    languages
+    languages,
+    reportType
 }
 
