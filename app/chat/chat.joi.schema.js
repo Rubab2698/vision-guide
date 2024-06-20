@@ -4,6 +4,7 @@ const { languages } = require('../general/enums');
 // Schema for createChatReq
 const   createChatReqSchema = Joi.object({
     body: Joi.object({
+        serviceId: Joi.string().required(),
         requestType: Joi.string().valid('chat').required(),
         mentorId: Joi.string().required(),
         menteeId: Joi.string().required(),

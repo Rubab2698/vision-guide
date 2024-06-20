@@ -3,6 +3,11 @@ const { Schema } = mongoose;
 const { reqStatuses, languages } = require('../general/enums');
 // Define Request Schema
 const requestSchema = new Schema({
+    serviceId: {
+        type: Schema.Types.ObjectId,
+        ref: 'MentorServiceSchema', // Reference to the User model assuming mentors and mentees are users
+        required: true   
+    },
     eventId:{
         type: String
     },
@@ -70,7 +75,7 @@ const requestSchema = new Schema({
     },
     status:{
         type:String,
-        enum:['pending', 'accepted', 'rejected'],
+        enum:['pending', 'accepted', 'rejected','done'],
         default: 'pending'
     }
 },{

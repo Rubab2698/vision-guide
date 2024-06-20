@@ -7,7 +7,7 @@ const createBasicService = async (req) => {
             throw new Error('Unauthorized');
         }
         const profile = await Profile.findOne({ userId: req.payload.sub });
-
+        
         if (req.payload.role !== "Mentor" || !profile || profile.role !== "Mentor") {
             throw new Error('Unauthorized to create basic service');
         }
@@ -24,6 +24,8 @@ const createBasicService = async (req) => {
         });
 
         const savedService = await service.save();
+        profile.serviceId = savedService._id
+        profile.save();
         return savedService;
 
     } catch (error) {

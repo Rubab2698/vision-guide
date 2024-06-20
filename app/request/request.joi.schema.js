@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { languages } = require('../general/enums');
+const { languages ,reqStatuses} = require('../general/enums');
 // Joi schema for creating a request
 const createRequestSchema = Joi.object({
   body: Joi.object({
@@ -20,6 +20,7 @@ const createRequestSchema = Joi.object({
     description: Joi.string().max(500).min(10),
     language: Joi.string().valid(...Object.values(languages)).default(languages.ENGLISH),
     name: Joi.string(),
+    serviceId:Joi.string().required()
   })
 });
 
@@ -56,7 +57,7 @@ const getAllRequestsByMentorIdSchema = Joi.object({
   }),
   query: Joi.object({
     requestType: Joi.string().valid('oneToOne', 'package','chat'),
-    status: Joi.string().valid('pending', 'accepted', 'rejected'),
+    status: Joi.string().valid(...Object.values(reqStatuses)),
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required()
@@ -70,7 +71,7 @@ const getAllRequestsByMenteeIdSchema = Joi.object({
   }),
   query: Joi.object({
     requestType: Joi.string().valid('oneToOne', 'package','chat'),
-    status: Joi.string().valid('pending', 'accepted', 'rejected'),
+    status: Joi.string().valid(...Object.values(reqStatuses)),
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required()
@@ -83,7 +84,7 @@ const createReqStatusSchema = Joi.object({
     reqStatusId: Joi.string().alphanum().min(24).max(24).required()
    }),
   body: Joi.object({
-    status: Joi.string().valid('pending', 'accepted', 'rejected').required(),
+    status: Joi.string().valid(...Object.values(reqStatuses)).required(),
     reqId: Joi.string().required(),
     message: Joi.string(),
   })
@@ -104,7 +105,7 @@ const getAllReqStatusesByMenteeIdSchema = Joi.object({
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required(),
-    status: Joi.string().valid('pending', 'accepted', 'rejected'),
+    status: Joi.string().valid(...Object.values(reqStatuses)),
     requestType: Joi.string().valid('oneToOne', 'package','chat'),
 
   })
@@ -118,7 +119,7 @@ const getAllReqStatusesByMentorIdSchema = Joi.object({
     sortBy: Joi.string(),
     page: Joi.number().integer().min(1).required(),
     limit: Joi.number().integer().min(1).required(),
-    status: Joi.string().valid('pending', 'accepted', 'rejected'),
+    status: Joi.string().valid(...Object.values(reqStatuses)),
     requestType: Joi.string().valid('oneToOne', 'package','chat'),
   })
 })

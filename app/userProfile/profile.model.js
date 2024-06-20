@@ -6,6 +6,9 @@ const { boolean } = require('joi');
 
 const profileSchema = new Schema(
   {
+    serviceId:{
+      type: Schema.Types.ObjectId, ref: 'MentorServiceSchema'
+    },
     email: {
       type: String,
       lowercase: true

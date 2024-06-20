@@ -270,7 +270,7 @@ const createReqStatus = async (reqStatusData, user) => {
             return { reqStatus, request };
             // , eventt: eventt.event, meetingLink: eventt.meetingLink 
         }
-        if (reqStatus.status == "rejected" || reqStatus.status == "pending") {
+        if (reqStatus.status == "rejected" || reqStatus.status == "pending" || reqStatus.status == "done") {
             return reqStatus;
         }
 

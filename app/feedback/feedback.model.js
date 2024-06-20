@@ -9,15 +9,10 @@ const feedbackSchema = new Schema({
     email: {
         type: String
     },
-    feedback: {
-        type: String
-    },
-    new: {
-        type: Boolean
-    },
-    service: {
+    rating: { type: Number, min: 1, max: 5, required: true },
+    serviceId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Service'
+        ref: 'MentorServiceSchema'
     },
     mentor: {
         type: mongoose.Schema.Types.ObjectId,
@@ -27,32 +22,13 @@ const feedbackSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Profile'
     },
-    visible: {
-        type: Boolean,
-        default: true
-    }
+
 },{
     timestamps: true
 });
 
-const report = new Schema({
-    feedbackId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Feedback'
-    },
-    report: {
-        type: String
-    },
-    reportType: {
-        type: String,
-        enum: [...Object.values(reportType)],
-        default: reportType.OTHER
-    }
-},{
-    timestamps: true
-});
+
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
 
-const Report = mongoose.model('Report', report);
-module.exports = {Feedback, Report};
+module.exports = {Feedback};
