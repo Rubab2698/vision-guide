@@ -6,7 +6,8 @@ const postPayment = async (req) => {
         mentee: req.mentee,
         mentor: req.mentor,
         req: req.req,
-        amount: req.amount
+        amount: req.amount,
+        meetingId: req.meetingId
     }
 
     const feedback = new Payment(data)
@@ -45,11 +46,35 @@ const getPayment = async (reqId) => {
         throw new Error("Payment not found");
     }
 }
+// payment.js
+
+
+const getPaymentByMeetingId = async (meetingId) => {
+    const result = await Payment.findOne({meetingId: meetingId});
+    if (result) {
+        return result;
+    }
+    else {
+        throw new Error("Payment not found");
+    }
+};
+
+
+
+const axios = require('axios');
+
+async function getPaymentAxios(meetingId) {
+  const response = await axios.get(`http://localhost:3000/vision-guide/payment/meeting/${meetingId}`);
+  return response.data; // Assuming it returns an object with a 'status' field
+}
+
 
 
 module.exports = {
     postPayment,
     updatePayment,
-    getPayment
+    getPayment,
+    getPaymentByMeetingId,
+    getPaymentAxios
 
 }

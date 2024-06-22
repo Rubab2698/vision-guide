@@ -77,7 +77,8 @@ const requestSchema = new Schema({
         type:String,
         enum:['pending', 'accepted', 'rejected','done'],
         default: 'pending'
-    }
+    },
+    meetingLink : String
 },{
     timestamps: true,
     autopopulate: true

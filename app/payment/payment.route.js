@@ -11,7 +11,7 @@ router.post(
     '/',
     verifyAccessToken,
     authorizationMiddleware(['Mentee', 'Admin']),
-    validateSchema(joiSchema.feedback),
+    validateSchema(joiSchema.payment),
     controller.createPayment
 );
 
@@ -29,6 +29,10 @@ router.patch('/:reqId',
     authorizationMiddleware(['Admin', 'Mentor']),
     validateSchema(joiSchema.updatePayment),
     controller.updatePayment
+)
+router.get('/meeting/:meetingId',
+    validateSchema(joiSchema.getPaymentByMeetingId),
+    controller.getPaymentByMeetingId
 )
 
 module.exports = router

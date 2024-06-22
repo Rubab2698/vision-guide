@@ -3,15 +3,15 @@ const { OAuth2 } = google.auth;
 const { v4: uuidv4 } = require('uuid');
 const axiosRetry = require('axios-retry').default;
 const axios = require('axios');
-
+const {getPaymentAxios} = require('../payment/payment.service');
 // Generate a UUID
 const uniqueId = uuidv4();
-// console.log('Unique ID:', uniqueId);
 
 // Google Calendar API configuration
 const CLIENT_ID = "749622528930-0l81q4glvi55pt7ptnav9ceharne7h6l.apps.googleusercontent.com";
 const CLIENT_SECRET = "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";
-const AUTH_REFRESH_TOKEN = "1//04eDa58dFWOJhCgYIARAAGAQSNwF-L9IroaSoYdKcYDY5OrblXcKSoGGFaetcua1dbBPDpB2mMF4GFVoynD5fBeFw2a1S3pSnS6M";
+const AUTH_REFRESH_TOKEN = "1//04k7wukBqdPfCCgYIARAAGAQSNwF-L9IrPzkfkuP0qKQTGLmLEAc_AVsOb_TTPmHJMl1SAkw_xj1Be8nj2LNn2DSwJsniNq3Rtak";
+
 // Get client's timezone
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -47,7 +47,10 @@ async function createMeetingEvent(eventData) {
       attendees: eventData.attendees,
       reminders: {
         useDefault: false,
-        overrides: [{ method: 'email', minutes: 30 }],
+        overrides: [
+          { method: 'email', minutes: 60 }, // Email reminder 1 hour before
+          { method: 'popup', minutes: 10 }, // Popup reminder 10 minutes before
+        ],
       },
     };
 
@@ -67,6 +70,24 @@ async function createMeetingEvent(eventData) {
       throw new Error('Meeting link not available');
     }
 
+    // Set timeout for 1 hour before meeting start time
+    const startTime = new Date(eventData.startTime).getTime();
+    const oneHourBefore = startTime - 3600000; // 1 hour in milliseconds
+    const now = Date.now();
+    const delay = oneHourBefore - now;
+
+    if (delay > 0) {
+      setTimeout(async () => {
+        const paymentConfirmed = await getPaymentAxios(eventId);
+        if (!paymentConfirmed.status) {
+          await deleteMeetingEvent(eventId);
+          console.log('Meeting canceled due to payment status.');
+        } else {  
+          console.log('Payment confirmed. Meeting will proceed.');
+        }
+      }, delay);
+    }
+
     // Return event data, meeting link, and event ID
     return { event: createdEvent.data, meetingLink: meetingLink, eventId: eventId };
   } catch (error) {
@@ -80,7 +101,7 @@ async function deleteMeetingEvent(eventId) {
     await calendar.events.delete({
       calendarId: 'primary',
       eventId: eventId,
-      sendUpdates: 'all'
+      sendUpdates: 'all' // This ensures notifications are sent to attendees
     });
 
     console.log('Event deleted:', eventId);
@@ -92,4 +113,3 @@ async function deleteMeetingEvent(eventId) {
 }
 
 module.exports = { createMeetingEvent, deleteMeetingEvent };
-

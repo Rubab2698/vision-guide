@@ -28,9 +28,18 @@ const getPayment  = async(req,res,next)=>{
       }
 }
 
+const getPaymentByMeetingId = async (req, res) => {
+  try {
+      const payment = await service.getPaymentByMeetingId(req.params.reqId);
+      res.status(201).json(payment);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+};
 
 module.exports =  {
     updatePayment,
     getPayment,
-    createPayment
+    createPayment,
+    getPaymentByMeetingId
 }

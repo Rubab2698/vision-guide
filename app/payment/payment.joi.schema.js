@@ -2,18 +2,25 @@ const Joi = require('joi');
 const { service } = require('../general/enums');
 
 
-const feedback = Joi.object({
+const payment = Joi.object({
     body: Joi.object({
         service: Joi.string().alphanum().min(24).max(24).required(),
         mentee: Joi.string().alphanum().min(24).max(24).required(),
         mentor: Joi.string().alphanum().min(24).max(24).required(),
         req: Joi.string().alphanum().min(24).max(24).required(),
         amount: Joi.number().required(),
-        status: Joi.boolean().default(false)
+        status: Joi.boolean().default(false),
+        meetingId: Joi.string()
     })
 
 
 });
+
+const getPaymentByMeetingId = Joi.object({
+    params: ({
+        meetingId: Joi.string()
+    })
+})
 
 const updatePayment = Joi.object({
     params: ({
@@ -33,8 +40,9 @@ const getPayment = Joi.object({
 })
 
 module.exports = {
-    feedback,
+    payment,
     updatePayment,
-    getPayment
+    getPayment,
+    getPaymentByMeetingId
 
 };

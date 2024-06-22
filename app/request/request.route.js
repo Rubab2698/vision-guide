@@ -61,7 +61,7 @@ router.get(
   verifyAccessToken,
   authorizationMiddleware( ['Admin', 'Mentor']),
   validateSchema(getAllRequestsByMentorIdSchema),
-  controller.getAllRequestsByMentor
+  controller.getAllRequestsByMentor 
 );
 
 // Get all requests by mentee ID

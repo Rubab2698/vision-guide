@@ -1,10 +1,12 @@
 const { Request, ReqStatuses, Chat } = require('./request.model'); // Importing Mongoose models
 const mongoose = require('mongoose');
-const {createMeetingEvent, deleteMeetingEvent} = require('../general/meet');
+const { createMeetingEvent, deleteMeetingEvent } = require('../general/meet');
 const moment = require('moment');
 const { ObjectId } = require('mongodb');
 const { getProfileByUserId } = require('../userProfile/profile.service');
 const { object } = require('joi');
+const { postPayment } = require('../payment/payment.service')
+const { getServiceById } = require('../mentorservice/mentorservice.service')
 
 //request
 const createRequest = async (requestData) => {
@@ -43,7 +45,7 @@ const deleteRequest = async (requestId) => {
     }
 }
 
-const getAllRequestsByMentorId = async (mentorIdFilter, reqType,status,  options) => {
+const getAllRequestsByMentorId = async (mentorIdFilter, reqType, status, options) => {
     try {
         const { page, limit, sortBy } = options;
 
@@ -60,7 +62,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType,status,  options
             };
             mainPipeline.push({ $match: matchStage });
         }
-        if(status){
+        if (status) {
             const matchStage = {
                 status: status.status
             };
@@ -127,7 +129,7 @@ const getAllRequestsByMentorId = async (mentorIdFilter, reqType,status,  options
     }
 }
 
-const getAllRequestsByMenteeId = async (filters, reqType, status , options) => {
+const getAllRequestsByMenteeId = async (filters, reqType, status, options) => {
     try {
         let { menteeId } = filters;
         const { sortBy, page, limit } = options;
@@ -147,7 +149,7 @@ const getAllRequestsByMenteeId = async (filters, reqType, status , options) => {
             mainPipeline.push({ $match: matchStage });
         }
 
-        if(status){
+        if (status) {
             const matchStage = {
                 status: status.status
             }
@@ -261,11 +263,26 @@ const createReqStatus = async (reqStatusData, user) => {
 
             const eventt = await createMeetingEvent(eventData);
             const meetingLink = eventt.meetingLink
-             req.eventId = eventt.eventId
+            req.eventId = eventt.eventId,
+            req.meetingLink  = meetingLink
             req.save();
             const request = {}
             Object.assign(request, { meetingLink }, { req });
-          
+
+
+            const service = await getServiceById(req.serviceId)
+            const amount = service.cost
+            const paymentData = {
+                mentor : req.mentorId,
+                mentee:req.menteeId,
+                service:req.serviceId,
+                req:req._id,
+                amount:amount,
+                meetingId:req.eventId
+               
+            }
+            const payment = await postPayment(paymentData)
+
             // reqStatus.request = req
             return { reqStatus, request };
             // , eventt: eventt.event, meetingLink: eventt.meetingLink 
@@ -298,7 +315,7 @@ const getReqStatusById = async (reqStatusId) => {
 }
 
 
-const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
+const getAllReqStatusesByMenteeId = async (menteeId, reqType, options) => {
     try {
         const { sortBy, page, limit, status } = options;
 
@@ -307,7 +324,7 @@ const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
         const parsedLimit = parseInt(limit) || 10;
 
         const mainPipeline = [];
-        
+
         const lookup = {
             from: 'requests',
             localField: 'requestId',
@@ -405,7 +422,7 @@ const getAllReqStatusesByMenteeId = async (menteeId,reqType, options) => {
     }
 }
 
-const getAllReqStatusesByMentorId = async (mentorId,reqType, options) => {
+const getAllReqStatusesByMentorId = async (mentorId, reqType, options) => {
     try {
         const { sortBy, page, limit, status } = options;
 
@@ -538,7 +555,9 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
         if (!updatedReqStatus) {
             throw new Error('Request status not found');
         }
-        if (reqStatusData.status === 'accepted') {
+
+
+        if (reqStatusData.status == "accepted") {
             // Format startTime and endTime if not in proper format
             const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
             const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
@@ -556,11 +575,31 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
                 ],
             };
 
-            const eventt = await meet(eventData);
+            const eventt = await createMeetingEvent(eventData);
             const meetingLink = eventt.meetingLink
+            req.eventId = eventt.eventId,
+            req.meetingLink  = meetingLink
+            req.save();
             const request = {}
             Object.assign(request, { meetingLink }, { req });
+
+
+            const service = await getServiceById(req.serviceId)
+            const amount = service.cost
+            const paymentData = {
+                mentor : req.mentorId,
+                mentee:req.menteeId,
+                service:req.serviceId,
+                req:req._id,
+                amount:amount,
+                meetingId:req.eventId
+               
+            }
+            const payment = await postPayment(paymentData)
+
+            // reqStatus.request = req
             return { updatedReqStatus, request };
+            // , eventt: eventt.event, meetingLink: eventt.meetingLink 
         }
         if (updatedReqStatus.status == "rejected" || updatedReqStatus.status == "pending") {
             return updatedReqStatus;
@@ -572,9 +611,9 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
 
 
 
-const cancelMeetingById = async (eventId)=>{
+const cancelMeetingById = async (eventId) => {
     const cancelMeet = await deleteMeetingEvent(eventId)
-    if(!cancelMeet){
+    if (!cancelMeet) {
         return new Error('Meeting not found')
     }
     return cancelMeet
