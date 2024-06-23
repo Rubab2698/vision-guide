@@ -3,17 +3,19 @@ const { languages ,reqStatuses} = require('../general/enums');
 // Joi schema for creating a request
 const createRequestSchema = Joi.object({
   body: Joi.object({
-    day: Joi.string().required(),
-    startTime: Joi.string().required(),
-    endTime: Joi.string().required(),
-    mentorId: Joi.string().required(),
-    menteeId: Joi.string().required(),
-    date: Joi.date().required(),
+    day: Joi.string(),
+    startTime: Joi.string(),
+    endTime: Joi.string(),
+    mentorId: Joi.string(),
+    menteeId: Joi.string(),
+    date: Joi.date(),
     requestType: Joi.string().valid('oneToOne', 'package').required(),
     package: Joi.object({
-      noOfdays: Joi.number().required(),
-      amount: Joi.number().required(),
-      time: Joi.string().required()
+      packageTime: Joi.array().items(Joi.object({
+        day: Joi.string(),
+        startTime: Joi.string(),
+        endTime: Joi.string(),
+      })),
     }),
     email: Joi.string(),
     topic: Joi.string(),

@@ -12,9 +12,17 @@ router.post('/',
   validateSchema(joiValidation.createChatSchema),
   chatController.createNewChat);
 
+router.delete('/:chatId',
+  verifyAccessToken,
+  authorizationMiddleware(['Mentor', 'Admin','Mentee']),
+  validateSchema(joiValidation.getMessagesSchema),
+  chatController.deleteChatRoom
+
+)
+
 router.post('/chatReq',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']) ,
+  authorizationMiddleware(['Mentee', 'Admin']),
   validateSchema(joiValidation.createChatReqSchema),
   chatController.createChatReq)
 

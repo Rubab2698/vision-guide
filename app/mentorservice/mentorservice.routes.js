@@ -3,7 +3,8 @@ const router = express.Router();
 const controller = require('./mentorservice.controller');
 const { verifyAccessToken, authorizationMiddleware } = require('../authToken/auth.serivce');
 const { validateSchema } = require('../general/joiValidation');
-const { createBasicServiceSchema, updateBasicServiceSchema,idSchema, getAllBasicServiceSchema } = require('./mentorservice.joi.schema');
+const { createPackageSchema,createBasicServiceSchema, updateBasicServiceSchema,idSchema, getAllBasicServiceSchema } = require('./mentorservice.joi.schema');
+const { createPackage } = require('./mentorservice.service');
 
 // Create a new basic service
 router.post(
@@ -14,6 +15,13 @@ router.post(
   controller.createBasicService
 );
 
+router.post(
+  '/package',
+  verifyAccessToken,
+  authorizationMiddleware(['Mentor', 'Admin']),
+  validateSchema(createPackageSchema),
+  controller.createPackage
+)
 // Update an existing basic service
 router.patch(
   '/:serviceId',

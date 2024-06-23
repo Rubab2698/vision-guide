@@ -8,9 +8,7 @@ const requestSchema = new Schema({
         ref: 'MentorServiceSchema', // Reference to the User model assuming mentors and mentees are users
         required: true   
     },
-    eventId:{
-        type: String
-    },
+    eventId:[String],
     name: {
         type: String
     },
@@ -63,22 +61,20 @@ const requestSchema = new Schema({
         default: 'oneToOne'
     },
     package:{
-        noOfdays:{
-            type:Number
-        },
-        amount:{
-            type:Number
-        },
-        time:{
-            type:String
-        },
+       packageTime : [
+        {
+            startTime : String,
+            endTime : String,
+        }
+       ]
     },
     status:{
         type:String,
         enum:['pending', 'accepted', 'rejected','done'],
         default: 'pending'
     },
-    meetingLink : String
+    meetingLink : [String],
+    amount : Number
 },{
     timestamps: true,
     autopopulate: true

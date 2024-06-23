@@ -10,7 +10,7 @@ const mentorServiceSchema = new Schema(
             default: service.BASIC
         }],
         daysOfWeek: [String],
-        availability : {
+        availability: {
             startTime: String,
             endTime: String
         },
@@ -20,49 +20,23 @@ const mentorServiceSchema = new Schema(
             default: 1
         },
         perHourRate: Number,
-        discountOnPackage:{
-            type:String,
-            description: "discount on package",
-        },
-        servicePackages: {
-            daysOfWeek:[String],
-            discount: Number
-        },
         cost: Number,
         mentorProfileId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
-        
+        package: {
+            packageTime: [
+                {
+                    day: String,
+                    time: String,
+                    date: Date
+                }
+            ],
+            discount: Number
+        }
+
     },
     {
         timestamps: true
     });
-
-
-const requestSchema = new Schema({
-    mentorId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
-    menteeId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
-    mentorServiceSchemaId: { type: Schema.Types.ObjectId, ref: 'MentorServiceSchema', autopopulate: true },
-    requestStatus: {
-        type: String,
-        enum: ['pending', 'accepted', 'rejected'],
-        default: 'pending'
-    },
-    message: String
-})
-mentorServiceSchema.pre('save', async function (next) {
-    console.log("MentorServiceSchema pre save");
-    try {
-        if (this.isModified('servicePackages')) {
-            const hours = this.servicePackages.daysOfWeek.length;
-            this.cost = this.perHourRate * hours - this.servicePackages.discount;
-        }
-        next(); // Proceed with saving the document
-    } catch (error) {
-        next(error); // Pass any error to the next middleware in the stack
-    }
-});
-
-
-
 
 const MentorServiceSchema = mongoose.model('MentorServiceSchema', mentorServiceSchema);
 module.exports = { MentorServiceSchema };

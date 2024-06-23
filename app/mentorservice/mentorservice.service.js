@@ -19,6 +19,8 @@ const createBasicService = async (req) => {
             throw new Error('You have already created basic Service');
         }
         // If no existing records found
+
+
         const service = new MentorServiceSchema({
             ...req.body
         });
@@ -184,11 +186,43 @@ const getAllBasicService = async (filters, options) => {
 }
 
 
+const createPackage = async (req) => {
+
+    if (req.payload.role !== "Mentor" && req.payload.role !== "Admin") {
+        throw new Error('Unauthorized');
+    }
+    const profile = await Profile.findOne({ userId: req.payload.sub });
+    
+    if (req.payload.role !== "Mentor" || !profile || profile.role !== "Mentor") {
+        throw new Error('Unauthorized to create basic service');
+    }
+    const  body = req.body
+    const data = {
+        serviceType : body.serviceType,
+        perHourRate : body.perHourRate,
+        package: body.package,
+        mentorProfileId: body.mentorProfileId
+    }
+    const noOfdays = data.package.packageTime.length
+    const cost = data.perHourRate * noOfdays * (1 - data.package.discount / 100);
+
+    data.cost = cost
+    const package = new MentorServiceSchema(data)
+    await package.save();
+    if (package) {
+        return package
+    }
+    else {
+        throw new Error("Package not created");
+    }
+}
+
 
 module.exports = {
     createBasicService,
     updateBasicService,
     deleteBasicService,
     getAllBasicService,
-    getServiceById
+    getServiceById,
+    createPackage
 }

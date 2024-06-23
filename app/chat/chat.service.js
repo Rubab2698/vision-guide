@@ -36,6 +36,18 @@ const chatReq = async (body, user) => {
     }
 };
 
+
+const delRoom =async (chatId) => {
+    try {
+        const deletedChat = await ChatModel.findByIdAndDelete(chatId);
+        if(deletedChat){
+            return deletedChat;
+        }
+    } catch (error) {
+        throw new Error(`Error request for chat: ${error.message}`);
+    }
+};
+
 // chatSave function
 const chatSave = async (body, user) => {
     try {
@@ -119,5 +131,6 @@ module.exports = {
     userChats,
     findChat,
     addMessage,
-    getMessages
+    getMessages,
+    delRoom
 };

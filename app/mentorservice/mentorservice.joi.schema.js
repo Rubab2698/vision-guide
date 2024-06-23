@@ -6,20 +6,32 @@ const createBasicServiceSchema = Joi.object({
     daysOfWeek: Joi.array().items(Joi.string()).required(),
     availability: Joi.object({
       startTime: Joi.string().required(),
-      endTime: Joi.string().required()
+      endTime: Joi.string().required(),
     }),
     serviceType: Joi.array().items(Joi.string().valid(...Object.values(service))),
     noOfHours: Joi.number().default(1),
     perHourRate: Joi.number().required(),
     mentorProfileId: Joi.string().required(),
-    discountOnPackage: Joi.string().description('Discount on package'),
-    servicePackages: Joi.object({
-      daysOfWeek: Joi.array().items(Joi.string()),
-      discount:Joi.number().required()
-    }),
   })
 });
 
+
+const createPackageSchema = Joi.object({
+  body: Joi.object({
+    serviceType : Joi.string().valid(service.PACKAGE).required(), 
+    perHourRate : Joi.number().required(),
+    noOfHours : Joi.number().default(1),
+    mentorProfileId : Joi.string().required(),
+    package : Joi.object({
+      packageTime : Joi.array().items(Joi.object({
+        day : Joi.string(),
+        time : Joi.string(),
+        date : Joi.date()
+      })),
+      discount : Joi.number()
+    })
+  })
+})
 // Joi schema for updating a basic service
 const updateBasicServiceSchema = Joi.object({
   params: Joi.object({
@@ -33,7 +45,7 @@ const updateBasicServiceSchema = Joi.object({
     discountOnPackage: Joi.string().description('Discount on package'),
     servicePackages: Joi.object({
       daysOfWeek: Joi.array().items(Joi.string()),
-      discount:Joi.number().required()
+      discount: Joi.number().required()
     }),
     mentorProfileId: Joi.string(), // Assuming mentorId can be updated
   })
@@ -59,5 +71,6 @@ module.exports = {
   createBasicServiceSchema,
   updateBasicServiceSchema,
   idSchema,
-  getAllBasicServiceSchema
+  getAllBasicServiceSchema,
+  createPackageSchema
 };

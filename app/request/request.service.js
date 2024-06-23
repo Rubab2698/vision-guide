@@ -12,6 +12,9 @@ const { getServiceById } = require('../mentorservice/mentorservice.service')
 const createRequest = async (requestData) => {
     try {
         const request = await Request.create(requestData);
+        const service = await getServiceById(requestData.serviceId);
+        request.amount = service.cost;
+        request.save()
         return request;
     } catch (error) {
         throw new Error(`Error creating request: ${error.message}`);
@@ -232,6 +235,8 @@ const createReqStatus = async (reqStatusData, user) => {
             throw new Error('Request Status Already Exists');
         }
         const req = await getRequestById(reqStatusData.reqId);
+        const service = await getServiceById(req.serviceId);
+
         req.status = reqStatusData.status
         await req.save();
         const data = {
@@ -243,50 +248,104 @@ const createReqStatus = async (reqStatusData, user) => {
         if (!reqStatus) {
             throw new Error('Error creating request status');
         }
-        if (reqStatus.status == "accepted") {
-            // Format startTime and endTime if not in proper format
-            const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-            const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-            const mentorName = req.mentorId.userName.firstName
-            const menteeName = req.menteeId.userName.firstName
-            const mentorEmail = req.mentorId.email
-            const menteeEmail = req.menteeId.email
-            const eventData = {
-                summary: 'Mentorship Meeting',
-                startTime: formattedStartTime,
-                endTime: formattedEndTime,
-                attendees: [
-                    { email: mentorEmail, displayName: mentorName },
-                    { email: menteeEmail, displayName: menteeName },
-                ],
-            };
 
-            const eventt = await createMeetingEvent(eventData);
-            const meetingLink = eventt.meetingLink
-            req.eventId = eventt.eventId,
-            req.meetingLink  = meetingLink
-            req.save();
-            const request = {}
-            Object.assign(request, { meetingLink }, { req });
+        if (reqStatus.status === "accepted") {
+            if (req.requestType === "oneToOne") {
+                // Format startTime and endTime if not in proper format
+                const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                const mentorName = req.mentorId.userName.firstName
+                const menteeName = req.menteeId.userName.firstName
+                const mentorEmail = req.mentorId.email
+                const menteeEmail = req.menteeId.email
+                const eventData = {
+                    summary: 'Mentorship Meeting',
+                    startTime: formattedStartTime,
+                    endTime: formattedEndTime,
+                    attendees: [
+                        { email: mentorEmail, displayName: mentorName },
+                        { email: menteeEmail, displayName: menteeName },
+                    ],
+                };
+
+                const eventt = await createMeetingEvent(eventData);
+                const meetingLink = eventt.meetingLink
+                req.eventId.push(eventt.eventId),
+                req.meetingLink.push(meetingLink)
+                req.save();
+                const request = {}
+                Object.assign(request, { meetingLink }, { req });
 
 
-            const service = await getServiceById(req.serviceId)
-            const amount = service.cost
-            const paymentData = {
-                mentor : req.mentorId,
-                mentee:req.menteeId,
-                service:req.serviceId,
-                req:req._id,
-                amount:amount,
-                meetingId:req.eventId
-               
+                const service = await getServiceById(req.serviceId)
+                const amount = service.cost
+                const paymentData = {
+                    mentor: req.mentorId,
+                    mentee: req.menteeId,
+                    service: req.serviceId,
+                    req: req._id,
+                    amount: amount,
+                    meetingId: req.eventId
+
+                }
+                const payment = await postPayment(paymentData)
+
+                // reqStatus.request = req
+                return { reqStatus, request };
+                // , eventt: eventt.event, meetingLink: eventt.meetingLink 
             }
-            const payment = await postPayment(paymentData)
+            if (req.requestType === "package") {
+                const mentorName = req.mentorId.userName.firstName;
+                const menteeName = req.menteeId.userName.firstName;
+                const mentorEmail = req.mentorId.email;
+                const menteeEmail = req.menteeId.email;
 
-            // reqStatus.request = req
-            return { reqStatus, request };
-            // , eventt: eventt.event, meetingLink: eventt.meetingLink 
-        }
+                const packageTimes = req.package.packageTime;
+                const meetings = [];
+
+                for (const timeSlot of packageTimes) {
+                    const formattedStartTime = moment(timeSlot.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                    const formattedEndTime = moment(timeSlot.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+
+                    const eventData = {
+                        summary: 'Mentorship Meeting',
+                        startTime: formattedStartTime,
+                        endTime: formattedEndTime,
+                        attendees: [
+                            { email: mentorEmail, displayName: mentorName },
+                            { email: menteeEmail, displayName: menteeName },
+                        ],
+                    };
+
+                    const eventt = await createMeetingEvent(eventData);
+                    const meetingLink = eventt.meetingLink;
+                    const meetingId = eventt.eventId;
+                    req.eventId.push(meetingId)
+                    req.meetingLink.push(meetingLink)
+
+                    meetings.push({ meetingLink, meetingId });
+                }
+ 
+                await req.save();
+
+                const service = await getServiceById(req.serviceId);
+                const amount = service.cost;
+                const totalAmount = amount * packageTimes.length;
+                const paymentData = {
+                    mentor: req.mentorId,
+                    mentee: req.menteeId,
+                    service: req.serviceId,
+                    req: req._id,
+                    amount: totalAmount,
+                    meetingIds: meetings.map(meeting => meeting.meetingId)
+                };
+                const payment = await postPayment(paymentData);
+
+                return { reqStatus, meetings };
+            }
+               }
+
+       
         if (reqStatus.status == "rejected" || reqStatus.status == "pending" || reqStatus.status == "done") {
             return reqStatus;
         }
@@ -578,7 +637,7 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
             const eventt = await createMeetingEvent(eventData);
             const meetingLink = eventt.meetingLink
             req.eventId = eventt.eventId,
-            req.meetingLink  = meetingLink
+                req.meetingLink = meetingLink
             req.save();
             const request = {}
             Object.assign(request, { meetingLink }, { req });
@@ -587,13 +646,13 @@ const updateReqStatusById = async (reqStatusId, reqStatusData, user) => {
             const service = await getServiceById(req.serviceId)
             const amount = service.cost
             const paymentData = {
-                mentor : req.mentorId,
-                mentee:req.menteeId,
-                service:req.serviceId,
-                req:req._id,
-                amount:amount,
-                meetingId:req.eventId
-               
+                mentor: req.mentorId,
+                mentee: req.menteeId,
+                service: req.serviceId,
+                req: req._id,
+                amount: amount,
+                meetingId: req.eventId
+
             }
             const payment = await postPayment(paymentData)
 

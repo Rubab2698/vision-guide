@@ -1,5 +1,5 @@
 // Importing necessary services
-const { chatReq, chatStatus, chatSave, createChat, userChats, findChat, addMessage, getMessages } = require('./chat.service');
+const { delRoom,chatReq, chatStatus, chatSave, createChat, userChats, findChat, addMessage, getMessages } = require('./chat.service');
 
 // createChatReq function
 const createChatReq = async (req, res, next) => {
@@ -11,6 +11,14 @@ const createChatReq = async (req, res, next) => {
     }
 };
 
+const deleteChatRoom = async (req, res, next) => {
+    try {
+        const chatRequest = await delRoom(req.params.chatId);
+        res.status(200).json(chatRequest);
+    } catch (error) {
+        next(error);
+    }
+}; 
 // chatReqStatus function
 const chatReqStatus = async (req, res, next) => {
     try {
@@ -87,5 +95,6 @@ module.exports = {
     getUserChats,
     getChat,
     createMessage,
-    fetchMessages
+    fetchMessages,
+    deleteChatRoom
 };

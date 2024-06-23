@@ -49,10 +49,20 @@ const getAllBasicService = async (req, res) => {
   }
 };
 
+const createPackage = async (req, res) => {
+  try {
+    const newService = await service.createPackage(req);
+    res.status(201).json(newService);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createBasicService,
   updateBasicService,
   deleteBasicService,
   getAllBasicService,
-  getBasicServiceById
+  getBasicServiceById,
+  createPackage
 };
