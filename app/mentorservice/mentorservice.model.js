@@ -30,14 +30,15 @@ const mentorServiceSchema = new Schema(
                     date: Date
                 }
             ],
-            discount: Number
+            discount: Number,
+            cost : Number
         }
 
     },
     {
         timestamps: true
     });
-
+''
 const MentorServiceSchema = mongoose.model('MentorServiceSchema', mentorServiceSchema);
 module.exports = { MentorServiceSchema };
 

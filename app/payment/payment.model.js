@@ -32,7 +32,7 @@ const paymentSchema = new Schema({
         type: Number,
         required: true
     },
-    meetingId:String
+    meetingId:[String]
 }, {
     timestamps: true
 });

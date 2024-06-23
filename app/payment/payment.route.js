@@ -14,7 +14,10 @@ router.post(
     validateSchema(joiSchema.payment),
     controller.createPayment
 );
-
+router.get('/meeting',
+    validateSchema(joiSchema.getPaymentByMeetingId),
+    controller.getPaymentByMeetingId
+)
 
 router.get('/:reqId',
     verifyAccessToken,
@@ -30,9 +33,6 @@ router.patch('/:reqId',
     validateSchema(joiSchema.updatePayment),
     controller.updatePayment
 )
-router.get('/meeting/:meetingId',
-    validateSchema(joiSchema.getPaymentByMeetingId),
-    controller.getPaymentByMeetingId
-)
+
 
 module.exports = router

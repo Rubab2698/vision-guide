@@ -337,7 +337,7 @@ const createReqStatus = async (reqStatusData, user) => {
                     service: req.serviceId,
                     req: req._id,
                     amount: totalAmount,
-                    meetingIds: meetings.map(meeting => meeting.meetingId)
+                    meetingId: req.eventId
                 };
                 const payment = await postPayment(paymentData);
 

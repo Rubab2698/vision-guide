@@ -17,8 +17,8 @@ const payment = Joi.object({
 });
 
 const getPaymentByMeetingId = Joi.object({
-    params: ({
-        meetingId: Joi.string()
+    body: ({
+        meetingId: Joi.array().items(Joi.string()).required()
     })
 })
 

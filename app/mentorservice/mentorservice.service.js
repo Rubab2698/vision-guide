@@ -19,7 +19,11 @@ const createBasicService = async (req) => {
             throw new Error('You have already created basic Service');
         }
         // If no existing records found
-
+        if(req.body.serviceType.includes("package")&& req.body.package){
+            const noOfdays = req.body.package.packageTime.length
+            const cost = req.body.perHourRate * noOfdays * (1 - req.body.package.discount / 100);
+            req.body.package.cost = cost        
+        }
 
         const service = new MentorServiceSchema({
             ...req.body

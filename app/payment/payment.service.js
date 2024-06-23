@@ -50,7 +50,7 @@ const getPayment = async (reqId) => {
 
 
 const getPaymentByMeetingId = async (meetingId) => {
-    const result = await Payment.findOne({meetingId: meetingId});
+    const result = await Payment.find({ meetingId: { $in: meetingId } });
     if (result) {
         return result;
     }

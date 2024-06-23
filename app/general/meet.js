@@ -3,7 +3,7 @@ const { OAuth2 } = google.auth;
 const { v4: uuidv4 } = require('uuid');
 const axiosRetry = require('axios-retry').default;
 const axios = require('axios');
-const {getPaymentAxios} = require('../payment/payment.service');
+const {getPaymentAxios,getPaymentByMeetingId} = require('../payment/payment.service');
 // Generate a UUID
 const uniqueId = uuidv4();
 
@@ -78,7 +78,8 @@ async function createMeetingEvent(eventData) {
 
     if (delay > 0) {
       setTimeout(async () => {
-        const paymentConfirmed = await getPaymentAxios(eventId);
+        const eventtId = [eventId]
+        const paymentConfirmed = await getPaymentByMeetingId(eventtId);
         if (!paymentConfirmed.status) {
           await deleteMeetingEvent(eventId);
           console.log('Meeting canceled due to payment status.');
@@ -96,80 +97,6 @@ async function createMeetingEvent(eventData) {
   }
 }
 
-
-// async function createMeetingEvents(eventsData) {
-//   try {
-//     const createdEvents = [];
-    
-//     for (const eventData of eventsData) {
-//       const event = {
-//         summary: eventData.summary,
-//         description: 'Meeting created with Google Calendar API and Google Meet',
-//         start: {
-//           dateTime: eventData.startTime,
-//           timeZone: eventData.timeZone || 'UTC', // Default to UTC if timeZone is not provided
-//         },
-//         end: {
-//           dateTime: eventData.endTime,
-//           timeZone: eventData.timeZone || 'UTC', // Default to UTC if timeZone is not provided
-//         },
-//         conferenceData: {
-//           createRequest: { requestId: eventData.uniqueId },
-//         },
-//         attendees: eventData.attendees,
-//         reminders: {
-//           useDefault: false,
-//           overrides: [
-//             { method: 'email', minutes: 60 }, // Email reminder 1 hour before
-//             { method: 'popup', minutes: 10 }, // Popup reminder 10 minutes before
-//           ],
-//         },
-//       };
-
-//       const createdEvent = await calendar.events.insert({
-//         calendarId: 'primary',
-//         resource: event,
-//         conferenceDataVersion: 1,
-//         sendNotifications: true, // Send notifications to attendees
-//       });
-
-//       console.log('Event created:', createdEvent.data);
-
-//       const meetingLink = createdEvent.data.hangoutLink;
-//       const eventId = createdEvent.data.id; // Capture the event ID
-//       if (!meetingLink) {
-//         console.error('Meeting link not available');
-//         throw new Error('Meeting link not available');
-//       }
-
-//       // Set timeout for 1 hour before meeting start time
-//       const startTime = new Date(eventData.startTime).getTime();
-//       const oneHourBefore = startTime - 3600000; // 1 hour in milliseconds
-//       const now = Date.now();
-//       const delay = oneHourBefore - now;
-
-//       if (delay > 0) {
-//         setTimeout(async () => {
-//           const paymentConfirmed = await getPaymentAxios(eventId);
-//           if (!paymentConfirmed.status) {
-//             await deleteMeetingEvent(eventId);
-//             console.log('Meeting canceled due to payment status.');
-//           } else {  
-//             console.log('Payment confirmed. Meeting will proceed.');
-//           }
-//         }, delay);
-//       }
-
-//       createdEvents.push({ event: createdEvent.data, meetingLink: meetingLink, eventId: eventId });
-//     }
-
-//     // Return array of created event data, meeting links, and event IDs
-//     return createdEvents;
-//   } catch (error) {
-//     console.error('Error creating events:', error);
-//     throw error;
-//   }
-// }
 
 async function deleteMeetingEvent(eventId) {
   try {

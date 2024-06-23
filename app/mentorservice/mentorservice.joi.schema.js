@@ -3,15 +3,23 @@ const { service } = require('../general/enums');
 // Joi schema for creating a basic service
 const createBasicServiceSchema = Joi.object({
   body: Joi.object({
-    daysOfWeek: Joi.array().items(Joi.string()).required(),
+    daysOfWeek: Joi.array().items(Joi.string()),
     availability: Joi.object({
-      startTime: Joi.string().required(),
-      endTime: Joi.string().required(),
+      startTime: Joi.string(),
+      endTime: Joi.string(),
     }),
     serviceType: Joi.array().items(Joi.string().valid(...Object.values(service))),
     noOfHours: Joi.number().default(1),
     perHourRate: Joi.number().required(),
     mentorProfileId: Joi.string().required(),
+    package : Joi.object({
+      packageTime : Joi.array().items(Joi.object({
+        day : Joi.string(),
+        time : Joi.string(),
+        date : Joi.date()
+      })),
+      discount : Joi.number()
+    })
   })
 });
 

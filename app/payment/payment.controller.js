@@ -30,7 +30,7 @@ const getPayment  = async(req,res,next)=>{
 
 const getPaymentByMeetingId = async (req, res) => {
   try {
-      const payment = await service.getPaymentByMeetingId(req.params.reqId);
+      const payment = await service.getPaymentByMeetingId(req.body.meetingId);
       res.status(201).json(payment);
     } catch (error) {
       res.status(500).json({ error: error.message });
