@@ -23,12 +23,8 @@ const mentorServiceSchema = new Schema(
         cost: Number,
         mentorProfileId: { type: Schema.Types.ObjectId, ref: 'Profile', autopopulate: true },
         package: {
-            packageTime: [
-                {
-                    day: String,
-                    time: String,
-                    date: Date
-                }
+            packageDays: [
+                  String
             ],
             discount: Number,
             cost : Number

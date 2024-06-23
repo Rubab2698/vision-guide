@@ -13,11 +13,7 @@ const createBasicServiceSchema = Joi.object({
     perHourRate: Joi.number().required(),
     mentorProfileId: Joi.string().required(),
     package : Joi.object({
-      packageTime : Joi.array().items(Joi.object({
-        day : Joi.string(),
-        time : Joi.string(),
-        date : Joi.date()
-      })),
+      packageDays : Joi.array().items(Joi.string()),
       discount : Joi.number()
     })
   })
