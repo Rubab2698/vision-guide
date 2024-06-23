@@ -20,7 +20,7 @@ const createBasicService = async (req) => {
         }
         // If no existing records found
         if(req.body.serviceType.includes("package")&& req.body.package){
-            const noOfdays = req.body.package.packageTime.length
+            const noOfdays = req.body.package.packageDays.length
             const cost = req.body.perHourRate * noOfdays * (1 - req.body.package.discount / 100);
             req.body.package.cost = cost        
         }
