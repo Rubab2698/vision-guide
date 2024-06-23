@@ -252,8 +252,11 @@ const createReqStatus = async (reqStatusData, user) => {
         if (reqStatus.status === "accepted") {
             if (req.requestType === "oneToOne") {
                 // Format startTime and endTime if not in proper format
-                const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-                const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                // const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                // const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                const formattedStartTime = moment.isMoment(req.startTime) ? req.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.startTime).format('YYYY-MM-DDTHH:mm:ss');
+                const formattedEndTime = moment.isMoment(req.endTime) ? req.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.endTime).format('YYYY-MM-DDTHH:mm:ss');
+              
                 const mentorName = req.mentorId.userName.firstName
                 const menteeName = req.menteeId.userName.firstName
                 const mentorEmail = req.mentorId.email
@@ -272,13 +275,15 @@ const createReqStatus = async (reqStatusData, user) => {
                 const meetingLink = eventt.meetingLink
                 req.eventId.push(eventt.eventId),
                 req.meetingLink.push(meetingLink)
-                req.save();
                 const request = {}
                 Object.assign(request, { meetingLink }, { req });
 
 
                 const service = await getServiceById(req.serviceId)
                 const amount = service.cost
+                req.amount = amount
+                req.save();
+
                 const paymentData = {
                     mentor: req.mentorId,
                     mentee: req.menteeId,
@@ -304,8 +309,11 @@ const createReqStatus = async (reqStatusData, user) => {
                 const meetings = [];
 
                 for (const timeSlot of packageTimes) {
-                    const formattedStartTime = moment(timeSlot.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-                    const formattedEndTime = moment(timeSlot.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                    // const formattedStartTime = moment(timeSlot.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                    // const formattedEndTime = moment(timeSlot.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                    const formattedStartTime = moment.isMoment(timeSlot.startTime) ? timeSlot.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.startTime).format('YYYY-MM-DDTHH:mm:ss');
+                    const formattedEndTime = moment.isMoment(timeSlot.endTime) ? timeSlot.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.endTime).format('YYYY-MM-DDTHH:mm:ss');
+        
 
                     const eventData = {
                         summary: 'Mentorship Meeting',
@@ -326,17 +334,17 @@ const createReqStatus = async (reqStatusData, user) => {
                     meetings.push({ meetingLink, meetingId });
                 }
  
-                await req.save();
 
                 const service = await getServiceById(req.serviceId);
-                const amount = service.cost;
-                const totalAmount = amount * packageTimes.length;
+                const amount = service.package.cost;
+                req.amount= amount
+                await req.save();
                 const paymentData = {
                     mentor: req.mentorId,
                     mentee: req.menteeId,
                     service: req.serviceId,
                     req: req._id,
-                    amount: totalAmount,
+                    amount: amount,
                     meetingId: req.eventId
                 };
                 const payment = await postPayment(paymentData);
