@@ -223,9 +223,148 @@ const getAllRequestsByMenteeId = async (filters, reqType, status, options) => {
 //request status
 
 
+// const createReqStatus = async (reqStatusData, user) => {
+//     try {
+
+//         const isAuthMentor = await getProfileByUserId(user._id)
+//         if (!isAuthMentor) {
+//             throw new Error('Unauthorized Mentor');
+//         }
+//         const isAlready = await getReqStatusByReqId(reqStatusData.reqId)
+//         if (isAlready.length > 0) {
+//             throw new Error('Request Status Already Exists');
+//         }
+//         const req = await getRequestById(reqStatusData.reqId);
+//         const service = await getServiceById(req.serviceId);
+
+//         req.status = reqStatusData.status
+//         await req.save();
+//         const data = {
+//             requestType: req.requestType,
+//             status: reqStatusData.status,
+//             requestId: reqStatusData.reqId
+//         }
+//         const reqStatus = await ReqStatuses.create(data);
+//         if (!reqStatus) {
+//             throw new Error('Error creating request status');
+//         }
+
+//         if (reqStatus.status === "accepted") {
+//             if (req.requestType === "oneToOne") {
+//                 // Format startTime and endTime if not in proper format
+//                 // const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+//                 // const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+//                 const formattedStartTime = moment.isMoment(req.startTime) ? req.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.startTime).format('YYYY-MM-DDTHH:mm:ss');
+//                 const formattedEndTime = moment.isMoment(req.endTime) ? req.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.endTime).format('YYYY-MM-DDTHH:mm:ss');
+              
+//                 const mentorName = req.mentorId.userName.firstName
+//                 const menteeName = req.menteeId.userName.firstName
+//                 const mentorEmail = req.mentorId.email
+//                 const menteeEmail = req.menteeId.email
+//                 const eventData = {
+//                     summary: 'Mentorship Meeting',
+//                     startTime: formattedStartTime,
+//                     endTime: formattedEndTime,
+//                     attendees: [
+//                         { email: mentorEmail, displayName: mentorName },
+//                         { email: menteeEmail, displayName: menteeName },
+//                     ],
+//                 };
+
+//                 const eventt = await createMeetingEvent(eventData);
+//                 const meetingLink = eventt.meetingLink
+//                 req.eventId.push(eventt.eventId),
+//                 req.meetingLink.push(meetingLink)
+//                 const request = {}
+//                 Object.assign(request, { meetingLink }, { req });
+
+
+//                 const service = await getServiceById(req.serviceId)
+//                 const amount = service.cost
+//                 req.amount = amount
+//                 req.save();
+
+//                 const paymentData = {
+//                     mentor: req.mentorId,
+//                     mentee: req.menteeId,
+//                     service: req.serviceId,
+//                     req: req._id,
+//                     amount: amount,
+//                     meetingId: req.eventId
+
+//                 }
+//                 const payment = await postPayment(paymentData)
+
+//                 // reqStatus.request = req
+//                 return { reqStatus, request };
+//                 // , eventt: eventt.event, meetingLink: eventt.meetingLink 
+//             }
+//             if (req.requestType === "package") {
+//                 const mentorName = req.mentorId.userName.firstName;
+//                 const menteeName = req.menteeId.userName.firstName;
+//                 const mentorEmail = req.mentorId.email;
+//                 const menteeEmail = req.menteeId.email;
+
+//                 const packageTimes = req.package.packageTime;
+//                 const meetings = [];
+
+//                 for (const timeSlot of packageTimes) {
+//                     // const formattedStartTime = moment(timeSlot.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+//                     // const formattedEndTime = moment(timeSlot.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+//                     const formattedStartTime = moment.isMoment(timeSlot.startTime) ? timeSlot.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.startTime).format('YYYY-MM-DDTHH:mm:ss');
+//                     const formattedEndTime = moment.isMoment(timeSlot.endTime) ? timeSlot.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.endTime).format('YYYY-MM-DDTHH:mm:ss');
+        
+
+//                     const eventData = {
+//                         summary: 'Mentorship Meeting',
+//                         startTime: formattedStartTime,
+//                         endTime: formattedEndTime,
+//                         attendees: [
+//                             { email: mentorEmail, displayName: mentorName },
+//                             { email: menteeEmail, displayName: menteeName },
+//                         ],
+//                     };
+
+//                     const eventt = await createMeetingEvent(eventData);
+//                     const meetingLink = eventt.meetingLink;
+//                     const meetingId = eventt.eventId;
+//                     req.eventId.push(meetingId)
+//                     req.meetingLink.push(meetingLink)
+
+//                     meetings.push({ meetingLink, meetingId });
+//                 }
+ 
+
+//                 const service = await getServiceById(req.serviceId);
+//                 const amount = service.package.cost;
+//                 req.amount= amount
+//                 await req.save();
+//                 const paymentData = {
+//                     mentor: req.mentorId,
+//                     mentee: req.menteeId,
+//                     service: req.serviceId,
+//                     req: req._id,
+//                     amount: amount,
+//                     meetingId: req.eventId
+//                 };
+//                 const payment = await postPayment(paymentData);
+
+//                 return { reqStatus, meetings };
+//             }
+//                }
+
+       
+//         if (reqStatus.status == "rejected" || reqStatus.status == "pending" || reqStatus.status == "done") {
+//             return reqStatus;
+//         }
+
+//     } catch (error) {
+//         throw new Error(`Error creating request status: ${error.message}`);
+//     }
+// }
+
 const createReqStatus = async (reqStatusData, user) => {
     try {
-
         const isAuthMentor = await getProfileByUserId(user._id)
         if (!isAuthMentor) {
             throw new Error('Unauthorized Mentor');
@@ -236,7 +375,6 @@ const createReqStatus = async (reqStatusData, user) => {
         }
         const req = await getRequestById(reqStatusData.reqId);
         const service = await getServiceById(req.serviceId);
-
         req.status = reqStatusData.status
         await req.save();
         const data = {
@@ -248,15 +386,13 @@ const createReqStatus = async (reqStatusData, user) => {
         if (!reqStatus) {
             throw new Error('Error creating request status');
         }
-
         if (reqStatus.status === "accepted") {
             if (req.requestType === "oneToOne") {
                 // Format startTime and endTime if not in proper format
-                // const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-                // const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-                const formattedStartTime = moment.isMoment(req.startTime) ? req.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.startTime).format('YYYY-MM-DDTHH:mm:ss');
-                const formattedEndTime = moment.isMoment(req.endTime) ? req.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.endTime).format('YYYY-MM-DDTHH:mm:ss');
-              
+                const formattedStartTime = moment(req.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                const formattedEndTime = moment(req.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                // const formattedStartTime = moment.isMoment(req.startTime) ? req.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.startTime).format('YYYY-MM-DDTHH:mm:ss');
+                // const formattedEndTime = moment.isMoment(req.endTime) ? req.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(req.endTime).format('YYYY-MM-DDTHH:mm:ss');
                 const mentorName = req.mentorId.userName.firstName
                 const menteeName = req.menteeId.userName.firstName
                 const mentorEmail = req.mentorId.email
@@ -270,51 +406,41 @@ const createReqStatus = async (reqStatusData, user) => {
                         { email: menteeEmail, displayName: menteeName },
                     ],
                 };
-
                 const eventt = await createMeetingEvent(eventData);
                 const meetingLink = eventt.meetingLink
                 req.eventId.push(eventt.eventId),
                 req.meetingLink.push(meetingLink)
                 const request = {}
                 Object.assign(request, { meetingLink }, { req });
-
-
                 const service = await getServiceById(req.serviceId)
-                const amount = service.cost
-                req.amount = amount
+                const amount = service.perHourRate
+                req.amount = amount?amount:0
                 req.save();
-
                 const paymentData = {
                     mentor: req.mentorId,
                     mentee: req.menteeId,
                     service: req.serviceId,
                     req: req._id,
-                    amount: amount,
+                    amount: amount?amount:0,
                     meetingId: req.eventId
-
                 }
                 const payment = await postPayment(paymentData)
-
                 // reqStatus.request = req
                 return { reqStatus, request };
-                // , eventt: eventt.event, meetingLink: eventt.meetingLink 
+                // , eventt: eventt.event, meetingLink: eventt.meetingLink
             }
             if (req.requestType === "package") {
                 const mentorName = req.mentorId.userName.firstName;
                 const menteeName = req.menteeId.userName.firstName;
                 const mentorEmail = req.mentorId.email;
                 const menteeEmail = req.menteeId.email;
-
                 const packageTimes = req.package.packageTime;
                 const meetings = [];
-
                 for (const timeSlot of packageTimes) {
-                    // const formattedStartTime = moment(timeSlot.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-                    // const formattedEndTime = moment(timeSlot.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
-                    const formattedStartTime = moment.isMoment(timeSlot.startTime) ? timeSlot.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.startTime).format('YYYY-MM-DDTHH:mm:ss');
-                    const formattedEndTime = moment.isMoment(timeSlot.endTime) ? timeSlot.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.endTime).format('YYYY-MM-DDTHH:mm:ss');
-        
-
+                    const formattedStartTime = moment(timeSlot.startTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                    const formattedEndTime = moment(timeSlot.endTime, 'h:mm A').format('YYYY-MM-DDTHH:mm:ss');
+                    // const formattedStartTime = moment.isMoment(timeSlot.startTime) ? timeSlot.startTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.startTime).format('YYYY-MM-DDTHH:mm:ss');
+                    // const formattedEndTime = moment.isMoment(timeSlot.endTime) ? timeSlot.endTime.format('YYYY-MM-DDTHH:mm:ss') : moment(timeSlot.endTime).format('YYYY-MM-DDTHH:mm:ss');
                     const eventData = {
                         summary: 'Mentorship Meeting',
                         startTime: formattedStartTime,
@@ -324,45 +450,36 @@ const createReqStatus = async (reqStatusData, user) => {
                             { email: menteeEmail, displayName: menteeName },
                         ],
                     };
-
                     const eventt = await createMeetingEvent(eventData);
                     const meetingLink = eventt.meetingLink;
                     const meetingId = eventt.eventId;
                     req.eventId.push(meetingId)
                     req.meetingLink.push(meetingLink)
-
                     meetings.push({ meetingLink, meetingId });
                 }
- 
-
                 const service = await getServiceById(req.serviceId);
                 const amount = service.package.cost;
-                req.amount= amount
+                req.amount= amount?amount:0
                 await req.save();
                 const paymentData = {
                     mentor: req.mentorId,
                     mentee: req.menteeId,
                     service: req.serviceId,
                     req: req._id,
-                    amount: amount,
+                    amount: amount?amount:0,
                     meetingId: req.eventId
                 };
                 const payment = await postPayment(paymentData);
-
                 return { reqStatus, meetings };
             }
                }
-
-       
         if (reqStatus.status == "rejected" || reqStatus.status == "pending" || reqStatus.status == "done") {
             return reqStatus;
         }
-
     } catch (error) {
         throw new Error(`Error creating request status: ${error.message}`);
     }
 }
-
 const getAllReqStatuses = async () => {
     try {
         const reqStatuses = await ReqStatuses.find({});

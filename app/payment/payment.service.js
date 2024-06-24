@@ -52,7 +52,7 @@ const getPayment = async (reqId) => {
 const getPaymentByMeetingId = async (meetingId) => {
     const result = await Payment.find({ meetingId: { $in: meetingId } });
     if (result) {
-        return result;
+        return result[0];
     }
     else {
         throw new Error("Payment not found");
