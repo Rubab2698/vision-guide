@@ -60,6 +60,12 @@ const chatSave = async (body, user) => {
 
 // createChat function
 const createChat = async (req, res) => {
+    
+    const alreadyRoom = await ChatModel.findOne({
+        members: { $all: [req.body.senderId, req.body.receiverId] },
+    })
+   if(alreadyRoom) return alreadyRoom;
+
     const newChat = new ChatModel({
         members: [req.body.senderId, req.body.receiverId],
     });
