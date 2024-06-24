@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const createError = require('http-errors');
 const path = require('path');
-const router = require('../vision-guide/app/route'); // Import the routes
+const router = require('./app/route'); // Import the routes
 require('dotenv').config();
 const { initializeSocket } = require('./app/socket'); // Import the socket initialization function
 
