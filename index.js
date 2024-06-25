@@ -9,7 +9,7 @@ const router = require('./app/route'); // Import the routes
 require('dotenv').config();
 const { initializeSocket } = require('./app/socket'); // Import the socket initialization function
 
-const port = 3000;
+const port = process.env.POR||5000;
 const app = express();
 
 // Middleware
