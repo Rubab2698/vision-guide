@@ -8,10 +8,9 @@ const {getPaymentAxios,getPaymentByMeetingId} = require('../payment/payment.serv
 const uniqueId = uuidv4();
 
 // Google Calendar API configuration
-const CLIENT_ID = "749622528930-0l81q4glvi55pt7ptnav9ceharne7h6l.apps.googleusercontent.com";
-const CLIENT_SECRET = "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";
-const AUTH_REFRESH_TOKEN = "1//04k7wukBqdPfCCgYIARAAGAQSNwF-L9IrPzkfkuP0qKQTGLmLEAc_AVsOb_TTPmHJMl1SAkw_xj1Be8nj2LNn2DSwJsniNq3Rtak";
-
+const CLIENT_ID = process.env.MEET_CLIENT_ID;
+const CLIENT_SECRET =process.env.MEET_CLIENT_SECRET;
+const AUTH_REFRESH_TOKEN = process.env.MEET_AUTH_REFRESH_TOKEN
 // Get client's timezone
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
