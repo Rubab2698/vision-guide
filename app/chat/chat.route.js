@@ -8,13 +8,13 @@ const chatController = require('./chat.controller');
 
 router.post('/',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.createChatSchema),
   chatController.createNewChat);
 
 router.delete('/:chatId',
   verifyAccessToken,
-  authorizationMiddleware(['Mentor', 'Admin','Mentee']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.getMessagesSchema),
   chatController.deleteChatRoom
 
@@ -22,14 +22,14 @@ router.delete('/:chatId',
 
 router.post('/chatReq',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.createChatReqSchema),
   chatController.createChatReq)
 
 
 router.post('/status',
   verifyAccessToken,
-  authorizationMiddleware(['Admin', 'Mentor']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.createChatStatusSchema),
   chatController.chatReqStatus
 )
@@ -37,25 +37,25 @@ router.post('/status',
 
 router.post('/message',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.addMessageSchema),
   chatController.createMessage);
 
 router.get('/:userId',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.userChatsSchema),
   chatController.getUserChats);
 
 router.get('/find/:firstId/:secondId',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.findChatSchema),
   chatController.getChat);
 
 router.get('/message/:chatId',
   verifyAccessToken,
-  authorizationMiddleware(['Mentee', 'Admin']),
+  authorizationMiddleware(['Mentor', 'Admin', 'Mentee']),
   validateSchema(joiValidation.getMessagesSchema),
   chatController.fetchMessages);
 
